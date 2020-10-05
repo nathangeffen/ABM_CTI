@@ -27,7 +27,7 @@
  * each run. There are no deaths in this run because everyone recovers before
  * hospital.
  *
- * ./abm_hetgen --trace_effective=0.0 --min_isolation=0.0 --max_isolation=0.0 --threads=1  --num_runs=100 --num_iterations=500 --report_frequency=600 --recover_before_hospital=1.0
+ * ./abm_hetgen --trace_effective=0.0 --min_isolation=0.0 --max_isolation=0.0 --threads=1  --runs=100 --iterations=500 --report_frequency=600 --recover_before_hospital=1.0
  *
  * To do sensitivity testing we have to "jiggle" our sensitive parameters.
  * An of the options that's of struct Jiggle can be jiggled. To specify that
