@@ -1,0 +1,194 @@
+---
+title: "Some model output analysis rendered using RMarkdown"
+author: "Marcus Low"
+date: "1 October 2020"
+output:
+    html_document:  
+        toc: false
+        number_sections: false
+        fig_height: 7
+        fig_width: 7
+theme: darkly
+--- 
+
+```{R load_the_basics, include=FALSE}
+a <- read.csv("a.csv")
+b <- read.csv("b.csv")
+c <- read.csv("c.csv")
+d <- read.csv("d.csv")
+e <- read.csv("e.csv")
+library(dplyr)
+library(ggplot2)
+library(htmlTable)
+f <- rbind(a, b)
+g <- rbind(f, c)
+h <- rbind(g, d)
+i <- rbind(h, e)
+write.csv2(i, file="abm_spaces_output.csv")
+runs_count <- length(a$Infections)
+```
+
+# Analysis {.tabset .tabset-fade .tabset-pills}
+
+## The numbers
+The below is based on `r runs_count` runs of each of the five scenarios.
+S1 is no CTI and Tat=2. All other scenarios include CTI. S2 and S4 have TaTs of 2 and S3 and S5 have TaTs of 8. In S2 and S3 contacts are tested and in S4 and S5 contacts are not tested.
+
+Comparing key numbers from the five simulations 
+```{R numbers_table_compare, echo = FALSE}
+k <- data.frame(
+"EPI numbers" = c("Infections", "Dead", "Peak time", "R0"),
+"s1" = c(mean(a$Infections), mean(a$Dead), mean(a$Peak.time), mean(a$R0)),
+"s2" = c(mean(b$Infections), mean(b$Dead), mean(b$Peak.time), mean(b$R0)),
+"s3" = c(mean(c$Infections), mean(c$Dead), mean(c$Peak.time), mean(c$R0)),
+"s4" = c(mean(d$Infections), mean(d$Dead), mean(d$Peak.time), mean(d$R0)),
+"s5" = c(mean(e$Infections), mean(e$Dead), mean(e$Peak.time), mean(e$R0)))
+k$s2Ds1 <- k$s2 / k$s1
+k$s3Ds1 <- k$s3 / k$s1
+k$s4Ds1 <- k$s4 / k$s1
+k$s5Ds1 <- k$s5 / k$s1
+htmlTable(k)
+```
+
+Scenario 1 details (No CTI, TaT=2)
+```{R numbers_table_s1, echo = FALSE}
+j <- a
+k <- data.frame(
+"EPI numbers" = c("Infections", "Dead", "Peak time", "R0"),
+"5th percentile" = c(quantile(j$Infections, 0.05), quantile(j$Dead, 0.05), quantile(j$Peak.time, 0.05), quantile(j$R0, 0.05)),
+"median" = c(median(j$Infections), median(j$Dead), median(j$Peak.time), median(j$R0)),
+"Mean" = c(mean(j$Infections), mean(j$Dead), mean(j$Peak.time), mean(j$R0)),
+"95th percentile" = c(quantile(j$Infections, 0.95), quantile(j$Dead, 0.95), quantile(j$Peak.time, 0.95), quantile(j$R0, 0.05)))
+htmlTable(k)
+```
+
+Scenario 2 details (CTI, TaT=2, contacts are tested)
+```{R numbers_table_s2, echo = FALSE}
+j <- b
+k <- data.frame(
+"EPI numbers" = c("Infections", "Dead", "Peak time", "R0"),
+"5th percentile" = c(quantile(j$Infections, 0.05), quantile(j$Dead, 0.05), quantile(j$Peak.time, 0.05), quantile(j$R0, 0.05)),
+"median" = c(median(j$Infections), median(j$Dead), median(j$Peak.time), median(j$R0)),
+"Mean" = c(mean(j$Infections), mean(j$Dead), mean(j$Peak.time), mean(j$R0)),
+"95th percentile" = c(quantile(j$Infections, 0.95), quantile(j$Dead, 0.95), quantile(j$Peak.time, 0.95), quantile(j$R0, 0.05)))
+htmlTable(k)
+```
+
+Scenario 3 details (CTI, TaT=8, contacts are tested)
+```{R numbers_table_s3, echo = FALSE}
+j <- c
+k <- data.frame(
+"EPI numbers" = c("Infections", "Dead", "Peak time", "R0"),
+"5th percentile" = c(quantile(j$Infections, 0.05), quantile(j$Dead, 0.05), quantile(j$Peak.time, 0.05), quantile(j$R0, 0.05)),
+"median" = c(median(j$Infections), median(j$Dead), median(j$Peak.time), median(j$R0)),
+"Mean" = c(mean(j$Infections), mean(j$Dead), mean(j$Peak.time), mean(j$R0)),
+"95th percentile" = c(quantile(j$Infections, 0.95), quantile(j$Dead, 0.95), quantile(j$Peak.time, 0.95), quantile(j$R0, 0.05)))
+htmlTable(k)
+```
+
+Scenario 4 details (CTI, TaT=2, No testing of contacts)
+```{R numbers_table_s4, echo = FALSE}
+j <- d
+k <- data.frame(
+"EPI numbers" = c("Infections", "Dead", "Peak time", "R0"),
+"5th percentile" = c(quantile(j$Infections, 0.05), quantile(j$Dead, 0.05), quantile(j$Peak.time, 0.05), quantile(j$R0, 0.05)),
+"median" = c(median(j$Infections), median(j$Dead), median(j$Peak.time), median(j$R0)),
+"Mean" = c(mean(j$Infections), mean(j$Dead), mean(j$Peak.time), mean(j$R0)),
+"95th percentile" = c(quantile(j$Infections, 0.95), quantile(j$Dead, 0.95), quantile(j$Peak.time, 0.95), quantile(j$R0, 0.05)))
+htmlTable(k)
+```
+
+Scenario 5 details (CTI, TaT=8, No testing of contacts)
+```{R numbers_table_s5, echo = FALSE}
+j <- e
+k <- data.frame(
+"EPI numbers" = c("Infections", "Dead", "Peak time", "R0"),
+"5th percentile" = c(quantile(j$Infections, 0.05), quantile(j$Dead, 0.05), quantile(j$Peak.time, 0.05), quantile(j$R0, 0.05)),
+"median" = c(median(j$Infections), median(j$Dead), median(j$Peak.time), median(j$R0)),
+"Mean" = c(mean(j$Infections), mean(j$Dead), mean(j$Peak.time), mean(j$R0)),
+"95th percentile" = c(quantile(j$Infections, 0.95), quantile(j$Dead, 0.95), quantile(j$Peak.time, 0.95), quantile(j$R0, 0.05)))
+htmlTable(k)
+```
+
+## Where agents get infected
+
+Based on a TB study that we are using to calibrate the model, we want roughly 41% of transmissions at work, around 15% at home, and around 21% on public transport (taxis). Since tracing may impact where infections take place, we provide tables for both all scenarios combined and for the non-intervention scenario alone.
+
+All three senarios combined
+```{R percentages_combined, echo = FALSE}
+j <- i
+percentages <- data.frame("Home" = mean(j$Home), "Work" = mean(j$Work), "School" = mean(j$School), "Block" = mean(j$Block), "Taxi" = mean(j$Taxi))
+percentages <- prop.table(percentages)
+percentages <- round(percentages * 100)
+htmlTable(percentages)
+```
+
+Only the non-intervention senario
+```{R percentages_non_intervention, echo = FALSE}
+j <- a
+percentages <- data.frame("Home" = mean(j$Home), "Work" = mean(j$Work), "School" = mean(j$School), "Block" = mean(j$Block), "Taxi" = mean(j$Taxi))
+percentages <- prop.table(percentages)
+percentages <- round(percentages * 100)
+htmlTable(percentages)
+```
+
+## Histograms 
+
+These are histograms of infections and then of deaths. They provide a good way to tell whether the data is distributed as expected. Earlier versions of the model had clustering on the left and right - which seems to be gone in newer versions of the model.
+
+Infections - for all five scenarios combined
+```{R histogram_combined, echo = FALSE}
+j <- i
+qplot(j$Infections, geom="histogram", binwidth=100)
+```
+
+Infections - Scenario 1
+```{R histogram_s1, echo = FALSE}
+j <- a
+qplot(j$Infections, geom="histogram", binwidth=100)
+```
+
+Infections - Scenario 2
+```{R histogram_s2, echo = FALSE}
+j <- b
+qplot(j$Infections, geom="histogram", binwidth=100)
+```
+
+Infections - Scenario 3
+```{R histogram_s3, echo = FALSE}
+j <- c
+qplot(j$Infections, geom="histogram", binwidth=100)
+```
+
+Infections - Scenario 4
+```{R histogram_s4, echo = FALSE}
+j <- d
+qplot(j$Infections, geom="histogram", binwidth=100)
+```
+
+Infections - Scenario 5
+```{R histogram_s5, echo = FALSE}
+j <- e
+qplot(j$Infections, geom="histogram", binwidth=100)
+```
+
+## Scatterplots 
+
+This scatterplot shows time of peak plotted against number of infections. Different scenarios should have different colours.
+```{R scatterplot1, echo = FALSE}
+ggplot(data = d, aes(x = Infections, y = Peak.time, fill = factor(Tracing + TaT))) +
+geom_point(size = 2, shape= 21, color = "black") +
+ylim(0, 150) +
+xlim(0, 8000) +
+scale_color_manual(values = c("red", "darkblue", "orange")) 
+```
+
+This scatterplot shows number of tests against number of infections
+```{R scatterplot2, echo = FALSE}
+ggplot(data = d, aes(x = Infections, y = Tests, fill = factor(Tracing + TaT))) +
+geom_point(size = 2, shape= 21, color = "black") +
+ylim(0, 15000) +
+xlim(0, 8000) +
+scale_color_manual(values = c("red", "darkblue", "orange")) 
+```
+

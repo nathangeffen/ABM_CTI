@@ -1,0 +1,587 @@
+\documentclass{article}
+\usepackage{arxiv}
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{tabularx}
+
+\title{Isolating infected people and their contacts is likely to be effective
+against many epidemics}
+
+\author{
+  Nathan Geffen \\
+  Centre for Social Science Research\\
+  University of Cape Town\\
+  \texttt{nathan.geffen@alumni.uct.ac.za} \\
+  \and
+  Marcus Low\\
+  Department of Computer Science\\
+  University of Cape Town\\
+  \texttt{LWXMAR013@MyUCT.ac.za}}
+
+\date{\today}
+
+\usepackage{listings}
+\usepackage{color}
+
+% For nicely formatting code
+\lstset{frame=tb,
+  language=Python,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+
+  Background: Isolation of infected people and their contacts may be an
+  effective way to control outbreaks of infectious disease, such as influenza
+  and SARS-CoV-2. Models can provide insights into the efficacy of contact
+  tracing, coupled with isolating or quarantining at risk people.\\
+  Methods: We developed an agent-based model and simulated $15,000$ short term
+  illnesses, with varying characteristics. For
+  each illness we ran ten simulations on the following scenarios: (1) No
+  tracing or isolation (None), (2) isolation of agents who have tested positive
+  (Isolation), (3) scenario 2 coupled with minimal contact tracing and quarantine
+  of contacts (Minimum), (4) scenario 3 with more effective contact tracing
+  (Moderate), and (5) perfect isolation of agents who test positive and perfect
+  tracing and quarantine of all their contacts (Maximum).\\
+  Results: The median total infections of the Isolation, Minimum, Moderate and
+  Maximum scenarios were 80\%, 40\%, 17\% and 4\% of the no intervention
+  scenario respectively.\\
+  Conclusions: Isolation of infected patients and quarantine of their contacts,
+  even if moderately well implemented, is likely to substantially reduce the
+  number of infections in an outbreak. Randomized controlled trials to confirm
+  these results in the real world and to analyse the cost effectiveness of
+  contact tracing and isolation during coronavirus and influenza outbreaks are
+  warranted.
+
+\end{abstract}
+
+\keywords{SARS-CoV-2 \and Covid-19 \and Agent-based model \and Contact tracing}
+
+\section{Introduction}
+
+Several non-pharmaceutical interventions have been introduced in different
+countries to reduce the spread of the SARS-CoV-2 pandemic. Some of these have
+included lockdowns, physical distancing rules, prolific use of hand sanitisers,
+and mask-wearing \cite{Flaxman2020,Lemaitre2020,Cowling2020}.
+
+In some countries, such as South Korea, a key intervention has been tracing the
+contacts of infected people so that they can isolate or quarantine themselves
+\cite{Jung2020,Lee2020}. Indeed, preparation for tracking coronavirus outbreaks
+was in place in South Korea long before the emergence of Covid-19
+\cite{Park2016}.
+
+Isolation refers to the movement of people with the infection being restricted,
+voluntarily or legally, while quarantine refers to the movement of people at
+risk of infection being restricted, voluntarily or legally. The work described
+here does not differentiate between these distinctions. We therefore use
+\emph{isolation} to refer interchangeably to isolation or quarantine, whether
+voluntarily undertaken or legally enforced.
+
+Besides coronaviruses, contact tracing has also been implemented to control
+tuberculosis, hepatitis and HIV and other sexually transmitted infections
+\cite{Dennis2018,MacPherson2019,Katzman2019,Stokes1999}. But these are rather
+different illnesses to Covid-19, generally infecting patients for longer and
+spreading slower through populations. It is also not usually ethical or
+practical to expect people with a long-duration infection to isolate.
+
+Contact tracing has to a limited extent also been used to control influenza
+outbreaks \cite{Swaan2011,Eames2010}. Contact tracing was a ``critical
+intervention'' in the Liberian Ebola epidemic of 2014-2015 and ``represented one
+of the largest contact tracing efforts during an epidemic in history'' \cite{Swanson2018}.
+
+This raises the question: How effective is contact tracing coupled with
+isolation (CTI) at controlling outbreaks of short duration illnesses such as
+those associated with coronaviruses and influenza? And how well
+implemented must contact tracing and isolation be? After all, CTI is potentially
+a far less costly and intrusive way to controlling dangerous illnesses than
+lockdowns, though both together may be necessary in some situations.
+
+It's impossible to provide a precise answer to this question. Infection
+outbreaks have practically infinite variations and are extraordinarily complex
+and stochastic. As the SARS-CoV-2 pandemic has shown, human populations are
+highly heterogeneous and it's hard to predict how even a suburb, let alone a
+city or country, will be affected by an outbreak.
+
+Nevertheless models, in particular agent-based ones, can provide insight into
+infectious disease dynamics \cite{Geffen2018,Hunter2019}, and particularly the
+effectiveness of CTI versus isolation only of infected people versus no contact
+tracing or isolation at all. If simulations of human populations can show us
+that under a wide variety of assumptions, CTI is likely to be beneficial then it
+is worth implementing CTI in response to dangerous infection outbreaks.
+
+\section{Methodology}
+
+We simulated thousands of short duration illnesses with the following
+model world:
+
+\begin{itemize}
+
+\item A population of $10,000$ agents is initiated with $10$ randomly infected
+  agents. The remaining agents are in a \emph{Susceptible} state.
+
+\item Infected agents are initially in an \emph{Exposed} state. They then
+  advance to an \emph{Infectious Asymptomatic} state. Then they advance either
+  to an \emph{Infectious Symptomatic} or \emph{Recovered} state. An agent that
+  has advanced to the \emph{Infectious Symptomatic} stage advances to the
+  \emph{Recovered} state. \footnote{While our simulation program can handle
+  hospitalisation, intensive care and death states, we decided that this was
+  unnecessary complexity for our purposes here.}
+
+\item Uninfected agents may become exposed if they are adjacent to one of $k$
+  neighbouring agents in one of the two infectious states. Each uninfected agent
+  has its own susceptibility to being infected by its neighbours. Each infected
+  agents also has its own level of infectiousness.
+
+\item Agents are tested for the infection with a specified probability per day
+depending on the state they are in. The test result becomes known an average
+of a specified number of days later.
+
+
+\item Agents that test positive may be placed in isolation for a fixed
+number of days in which case they are less likely to become infected. Each agent
+has its own adherence level to isolation which is factored into its risk of
+being infected. There is a continuum of isolation adherence that affects the
+risk of infection.
+
+\item If an agent is one of the $k$ adjacent neighbours of an agent whose test
+result is known it may be traced with a specified probability. If it is
+successfully traced it is also placed into isolation.
+
+\item We assume we are interested in highly contagious diseases with at most a
+  single digit infection mortality rate, such as SARS-CoV-2 or influenza, and
+  unlike MERS or Ebola (though our work can easily be extended to examine these
+  as well). Hence we have not factored death into the simulations.
+
+\end{itemize}
+
+Thus the risk of infection of an uninfected agent, $a$, that comes into contact
+with an infectious one, $b$, is a stochastic function of the susceptibility to
+infection of $a$, the infectiousness of $b$ and the isolation of $a$ and $b$.
+
+A simulation runs as follows: First the agents are initialized. Then for 500
+iterations, where each iteration represents a day, the following events take
+place: new infections, testing, isolation, de-isolation (for agents who have
+been isolated for the specified number of days), tracing, and finally disease
+progression.
+
+The simulation engine has the algorithmic form described in Listing
+~\ref{listing:engine}.
+
+\begin{minipage}{\linewidth}
+
+\begin{lstlisting}[caption=Structure of the simulation engine, label=listing:engine]
+
+  Initialize Agents
+  For each day of the simulation:
+     For each event
+        Select the agents to whom the event applies
+        Apply the event
+     End
+  End
+\end{lstlisting}
+
+\end{minipage}
+
+This structure is based on \cite{Geffen2017}.
+
+By design our model, named HETGEN, encompasses extremely heterogeneous and
+stochastic agent behaviour: (1) each agent has its own susceptibility when
+uninfected, and infectiousness when infected, (2) infected agents traverse
+through the infection stages stochastically, (3) agents have their own isolation
+adherence parameter, (4) agents get tested stochastically but infected
+symptomatic agents are much more likely to get tested, (5) tracing occurs when
+an infected agent's test is returned with a positive result, and (6) tracing,
+too is stochastic, with a success probability for each contact.
+
+Listing ~\ref{listing:infection} is the pseudo-code for the infection algorithm.
+
+\begin{lstlisting}[mathescape=true, caption=Infection algorithm, label=listing:infection]
+  For each infected agent, $a$
+     For each agent $b$ where $b$ is one of up to $k/2$ neighbors on either side of $a$
+        if $b$ is uninfected
+           Generate a uniform random number between $0$ and $1$, $r$
+           $x$ = $f$(infectiousness of $a$, isolation adherence of $a$ if isolated,
+                    susceptibility of $b$, isolation adherence of $b$ if isolated)
+           if $r < x$
+              Set $b$'s state to Exposed
+           End
+        End
+     End
+  End
+\end{lstlisting}
+
+
+The infection function, $f$ in Listing ~\ref{listing:infection} for two agents,
+$a$ and $b$, where $a$ is infectious and $b$ is susceptible, $i$ is a property
+between $0$ and $1$ of $a$ and $b$ measuring their adherence to isolation, $t$
+is the infectious of $a$, and $s$ is the susceptibility of $b$, is
+as follows:
+
+\begin{equation}
+min(1-a_i,1-b_i) (a_t+b_s)/2
+\end{equation}
+
+\subsection{Scenarios}
+
+We compared five scenarios:
+
+\begin{description}
+
+\item[None] There is no isolation or contact tracing.
+
+\item[Isolation] There is only isolation of agents with positive test results,
+  with 85\% mean adherence per day.
+
+\item[Minimum] There is isolation of agents with positive tests results with
+  85\% mean adherence per day, and 10\% of their contacts are traced and
+  isolated with 85\% mean adherence per day.
+
+\item[Moderate] There is isolation of agents with positive results with 85\%
+  adherence per day, and 30\% of their contacts are traced and isolated with
+  85\% mean adherence per day.
+
+\item[Maximum] There is perfect isolation of agents when they test positive and
+  perfect tracing of contacts of their contacts, who are then also perfectly
+  isolated.
+
+\end{description}
+
+We ran $15,000$ sensitivity tests, repeated $10$ times for each scenario, on
+$10,000$ agents. This comes to $15,000 \times 10 \times 5 = 750,000$
+simulations.
+
+On each sensitivity test several of the parameters are randomly perturbed, using
+a uniform distribution, over a specified range. Table ~\ref{table:parameters}
+lists the parameters used in the model. Entries in the value column separated by
+a hyphen are the perturbed parameters, while those that do no have a hyphen are
+held constant across all simulations.
+
+\begin{table}[h!]
+\begin{tabular}{|p{7cm}|c|p{7cm}|}
+  \hline
+Parameter	&Value	&Notes\\ \hline
+Number of days	& 500	&Each simulation iteration corresponds to 1 day\\ \hline
+Initial infections	& 10	&Infected agents are set to Exposed\\ \hline
+Daily probability of Susceptible agent getting tested	& 0	&\\ \hline
+Daily probability of Exposed agent getting tested 	& 0.1-0.3	&\\ \hline
+Daily probability of Infectious Asymptomatic agent getting tested	&0.1-0.3	&\\ \hline
+Daily probability of Infectious Symptomatic agent getting tested	& 0.3-0.9	&\\ \hline
+Probability of exposed agent test returning positive	& 0.5	&\\ \hline
+Probability of Infectious Asymptomatic agent test returning positive	& 0.9	&\\ \hline
+Probability of Infectious Symptomatic agent test returning positive	& 0.999	&\\ \hline
+Mean number of days for test result to come back	& 1-6	&\\ \hline
+Minimum number of days for test result to come back	& 0-2	&Even if mean is less than this, this prevails\\ \hline
+Isolation days	& 6-14	&\\ \hline
+Probability per day of staying Exposed	& 0.1-0.9	&\\ \hline
+Probability per day of staying Infectious Asymptomatic	& 0.1-0.9	&\\ \hline
+Probability of changing from Infectious Asymptomatic to Recovered	& 0.05-0.95	&\\ \hline
+Probability per day of staying Infectious Symptomatic	& 0.1-0.9	&\\ \hline
+Number of neighbours affected in matching and isolation	& 32-44	&\\
+\hline
+\end{tabular}
+\caption{Parameters used in the simulations. Entries in the Value column with a
+  hyphen are randomly perturbed before each sensitivity test.}
+\label{table:parameters}
+\end{table}
+
+\subsection{Limitations}
+
+While the model encompasses a wide variety of variables for a wide number of
+possible illnesses, it is merely a computer simulation and cannot capture all
+real-world dynamics. Also the search space of possible illnesses, even with the
+limited number of variables we have perturbed, is massive (indistinguishable
+from infinity for practical purposes). $15,000$ illnesses represents a tiny
+fraction of the search space. Nevertheless our sample should be large enough to
+draw tentative conclusions that inform policy, or at least further clinical
+research.
+
+A further limitation of the infection algorithm is that only the agents in the
+neighbourhood of an infectious agent can become infected. This algorithm, while
+more realistic than random or unassortative mixing ones, certainly doesn't
+capture the complexity of real-world contacts. In future work we will explore
+compromises between assortative and unassortative mixing.
+
+Also there is no migration by agents into or out of our model-world.
+
+While this work may suggest that CTI can mitigate the spread of infectious
+disease, it offers no insight into how it can be implemented effectively.
+
+\subsection{Programming}
+
+Our model was prototyped in Python and then recoded, and further developed, in
+C++. This allowed us to run hundreds of thousands of simulations in several
+hours on affordable, standard consumer hardware. We recommend this methodology
+to other modellers who are welcome to use our code as a basis for this kind of
+simulation. The HETGEN source is available under the GNU General Public License
+version 3.0. Our code and results are available on Github at
+\url{https://github.com/eduardgrebe/covid_contact_tracing}.
+
+\subsection{Calibration, $R_0$ and wide range of infections}
+
+To the extent that the model has been calibrated, it has been done
+experimentally. The values in Table ~\ref{table:parameters} that are perturbed
+in $15,000$ sensitivity tests, have been set to go slightly beyond the range of
+reasonable estimates for influenza and SARS-CoV-2 infections. Those that are not
+perturbed have been set to what we hope are reasonable values.
+
+Because a practically infinite number of illnesses are encompassed in these
+values, many outbreaks do not have an $R_0$ above 1 and fizzle out
+immediately. Others, on the other hand, have extremely high $R_0$ values, with
+every agent becoming infected if no intervention takes place. Calculating $R_0$
+per simulation for such models in which the agents behave so heterogeneously is
+also not useful, with different methodologies giving widely different
+estimates. We therefore do an analysis of the results that includes all the
+simulations and sub-analyses that exclude those where fewer than 500 agents
+become infected.
+
+\section{Results}\label{results}
+
+We calculated the mean, median and standard deviation over the $10$ runs of each
+of the $15,000$ sensitivity test for each of the five scenarios. Table
+~\ref{table:results_10k} shows the results.
+
+As expected, the \emph{None} scenario had the highest mean and median total
+infections, followed by \emph{Isolation}, \emph{Minimum}, \emph{Moderate} and
+\emph{Maximum}.
+
+Note that the median for the \emph{None} scenario is higher than the mean,
+indicating that the mean is pulled down disproportionately by illnesses with
+low $R_0$ that never become sizeable. By contrast the medians of the three most
+effective intervention scenarios are lower than the means, indicating that the
+means are increased disproportionately by epidemics with large $R_0$ that,
+despite the intervention, still resulted in a large number of infections.
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{|l|c|c|c|}
+    \hline
+    Scenario & Mean & Median & Std\\ \hline
+    None & $5,743$ & $7,511$ & $4,269$\\ \hline
+    Isolation & $5,341$ & $5,983$ & $4,285$\\ \hline
+    Minimum & $4,419$ & $2,991$ & $4,092$ \\ \hline
+    Moderate & $3,359$ & $1,282$ & $3,731$ \\ \hline
+    Maximum & $994$ & $273$ & $1,716$\\ \hline
+  \end{tabular}
+  \caption{Results of the $15,000$ sensitivity tests using $10,000$ agents.}
+  \label{table:results_10k}
+\end{table}
+
+Also useful is to know for how many illnesses each scenario outperformed the
+others. We compared scenarios using the mean of the ten runs for each
+illness. If an intervention has no effect, it should be outperformed by the None
+scenario approximately $7,500$ times (i.e. half of the $15,000$
+illnesses). Using the mean of the ten runs per illness, the None scenario only
+outperformed the Isolation, Minimum, Moderate and Maximum interventions $2,986$,
+$828$, $423$ and $193$ times respectively. (Note: Whenever the None scenario beats
+another scenario, it is only due to the stochastic nature of the simulations.)
+
+Many illnesses never reach epidemic proportions or the difference between the
+interventions is small. We therefore did a further analysis of counting the
+number of times each scenario outperformed (or was outperformed by) the no
+intervention scenario if two criteria were met: (1) A mean of at least 500
+agents were infected in the None scenario across the tens runs of an illness and
+(2) the better performing scenario had no more than 70\% of the infections of
+the scenario it was being compared to. Using these criteria the None scenario
+only outperformed the Isolation, Minimum, Moderate and Maximum interventions 28,
+2, 0 and 0 times respectively. It was outperformed by them $2,020$, $5,406$,
+$7,754$ and $11,392$ times respectively. Making the second criterion even more
+stringent, by lowering it to 40\%, resulted in the None scenario never
+outperforming any of the intervention scenarios. The intervention scenarios
+outperformed the None scenario $346$, $2,599$, $5,657$ and $10,585$ times
+respectively.
+
+\section{Conclusions}\label{conclusions}
+
+Our analysis suggests that if an infectious outbreak occurs with certain
+characteristics similar to influenza and SARS-CoV-2, even moderately well
+implemented CTI is likely to substantially reduce the ultimate
+number of infections. These characteristics are: (1) There must be a test for
+the illness with reasonable specificity and sensitivity for which results can be
+obtained in a few days. (2) A significant number of infectious people should
+present for the test, (3) the length of the illness should exceed the mean
+turnaround time for the test, and (4) the means to carry out contact tracing and
+isolation must exist. These characteristics are achievable for seasonal
+influenza and SARS-CoV-2 in many countries.
+
+Even moderately implemented isolation measures without tracing are likely to
+have a substantial benefit. This suggests that if people are, for example,
+strongly encouraged to stay at home if they have influenza symptoms during the
+influenza season, many infections, and consequently a substantial number of
+deaths, can be averted, even more so perhaps if entire households remain at home
+while one member is symptomatic with influenza. It's conceivable that this may
+even reduce the total number of days absent from work during influenza season,
+though further research is needed to test this hypothesis.
+
+Randomized cluster-controlled clinical trials conceivably could test the
+efficacy of contact tracing. A Cochrane Review has pointed out the lack of
+contact tracing randomised trials for tuberculosis \cite{Brangaza2019}. This gap
+in medical evidence applies to most infectious diseases. While models such as
+ours suggest that it is worthwhile investing in contact tracing infrastructure
+for infectious diseases, randomised trials can offer much clearer insight into
+the cost-effectiveness of CTI and its practical feasibility than models.
+
+Interestingly, because our model is highly heterogeneous and our analysis finds
+that, occasionally, even with the best possible implementation of CTI, there
+will be no benefit merely due to stochastic effects. We suspect this is a
+finding with real-world relevance. It is likely that in two similar settings,
+wherein no intervention is implemented in one, while a comprehensive CTI
+intervention is implemented in the other, the latter will, in a minority of
+occasions, have a worse epidemic, solely due to the stochastic nature of
+epidemics.
+
+\begin{thebibliography}{1}
+
+\bibitem{Flaxman2020}
+  Flaxman S, Mishra S, Gandy A, et al.
+  \newblock Estimating the effects of non-pharmaceutical interventions on
+  COVID-19 in Europe.
+  \newblock Nature. 2020;584(7820):257-261.
+  \newblock doi:10.1038/s41586-020-2405-7
+
+\bibitem{Lemaitre2020}
+  Lemaitre JC, Perez-Saez J, Azman AS, Rinaldo A, and Fellay J.
+  \newblock Assessing the impact of non-pharmaceutical interventions on
+  SARS-CoV-2 transmission in Switzerland.
+  \newblock Swiss Med Wkly. 2020;150:w20295. Published 2020 May 30.
+  \newblock doi:10.4414/smw.2020.20295
+
+\bibitem{Cowling2020}
+  Cowling BJ, Ali ST, Ng TWY, et al.
+  \newblock Impact assessment of non-pharmaceutical interventions against
+  coronavirus disease 2019 and influenza in Hong Kong: an observational study.
+  \newblock Lancet Public Health. 2020;5(5):e279-e288.
+  \newblock doi:10.1016/S2468-2667(20)30090-6
+
+\bibitem{Jung2020}
+  Jung J, Hong MJ, Kim EO, Lee J, Kim MN, Kim SH.
+  \newblock Investigation of a nosocomial outbreak of coronavirus disease 2019
+  in a paediatric ward in South Korea: successful control by early detection and
+  extensive contact tracing with testing [published online ahead of print, 2020
+    Jun 25].
+  \newblock Clin Microbiol Infect. 2020;S1198-743X(20)30365-7.
+  \newblock doi:10.1016/j.cmi.2020.06.021
+
+\bibitem{Lee2020}
+  Lee SW, Yuh WT, Yang JM, et al.
+  \newblock Nationwide Results of COVID-19 Contact Tracing in South Korea:
+  Individual Participant Data From an Epidemiological Survey.
+  \newblock JMIR Med Inform. 2020;8(8):e20992. Published 2020 Aug 25.
+  \newblock doi:10.2196/20992
+
+\bibitem {Park2016}
+  Park GE, Ko JH, Peck KR, et al.
+  \newblock Control of an Outbreak of Middle East Respiratory Syndrome in a
+  Tertiary Hospital in Korea.
+  \newblock Ann Intern Med. 2016;165(2):87-93.
+  \newblock doi:10.7326/M15-2495
+
+\bibitem{Dennis2018}
+  Dennis AM, Pasquale DK, Billock R, et al.
+  \newblock Integration of Contact Tracing and Phylogenetics in an Investigation
+  of Acute HIV Infection.
+  \newblock Sex Transm Dis. 2018;45(4):222-228.
+  \newblock doi:10.1097/OLQ.0000000000000726
+
+\bibitem{MacPherson2019}
+  MacPherson P, Webb EL, Variava E, et al.
+  \newblock Intensified household contact tracing, prevention and treatment
+  support versus enhanced standard of care for
+  contacts of tuberculosis cases in South Africa: study protocol for a household
+  cluster-randomised trial.
+  \newblock BMC Infect Dis. 2019;19(1):839. Published 2019 Oct 12.
+  \newblock doi:10.1186/s12879-019-4502-5
+
+\bibitem{Katzman2019}
+  Katzman C, Mateu-Gelabert P, Kapadia SN, Eckhardt BJ.
+  \newblock Contact tracing for hepatitis C: The case for novel screening
+  strategies as we strive for viral elimination.
+  \newblock Int J Drug Policy. 2019;72:33-39.
+  \newblock doi:10.1016/j.drugpo.2019.04.003
+
+\bibitem{Stokes1999}
+  Stokes T, Schober P.
+  \newblock A survey of contact tracing practice for sexually transmitted
+  diseases in GUM clinics in England and Wales.
+  \newblock Int J STD AIDS. 1999;10(1):17-21.
+  \newblock doi:10.1258/0956462991913024
+
+  \bibitem{Swaan2011}
+    Swaan CM, Appels R, Kretzschmar ME, van Steenbergen JE.
+    \newblock Timeliness of contact tracing among flight passengers for
+    influenza A/H1N1 2009.
+    \newblock BMC Infect Dis. 2011;11:355. Published 2011 Dec 28.
+    \newblock doi:10.1186/1471-2334-11-355
+
+\bibitem{Eames2010}
+  Eames KT, Webb C, Thomas K, Smith J, Salmon R, Temple JM.
+  \newblock Assessing the role of contact tracing in a suspected H7N2 influenza
+  A outbreak in humans in Wales.
+  \newblock BMC Infect Dis. 2010;10:141. Published 2010 May 28.
+  \newblock doi:10.1186/1471-2334-10-141
+
+
+\bibitem{Swanson2018}
+  Swanson KC, Altare C, Wesseh CS, et al.
+  \newblock Contact tracing performance during the Ebola epidemic in Liberia,
+  2014-2015.
+  \newblock PLoS Negl Trop Dis. 2018;12(9):e0006762. Published 2018 Sep 12.
+  \newblock doi:10.1371/journal.pntd.0006762
+
+
+\bibitem{Geffen2017}
+  Geffen N, Scholz SM.
+  \newblock Efficient and Effective Pair-Matching Algorithms for Agent-Based
+  Models.
+  \newblock Journal of Artificial Societies and Social Simulation 20 (4) 8,
+  2017.
+  \newblock doi: 10.18564/jasss.3485
+
+
+\bibitem{Geffen2018}
+  Geffen N, Scholz SM.
+  \newblock How various design decisions on matching individuals in
+  relationships affect the outcomes of microsimulations of sexually transmitted
+  infection epidemics.
+  \newblock PLoS One. 2018;13(8):e0202516. Published 2018 Aug 29.
+  \newblock doi:10.1371/journal.pone.0202516
+
+\bibitem{Hunter2019}
+  Hunter E, Mac Namee B, Kelleher J.
+  \newblock An open-data-driven agent-based model to simulate infectious disease
+  outbreaks [published correction appears in PLoS One.
+    \newblock 2019 Jan 17;14(1):e0211245]. PLoS
+  One. 2018;13(12):e0208775. Published 2018 Dec 19.
+  \newblock doi:10.1371/journal.pone.0208775
+
+\bibitem{Brangaza2019}
+  Braganza Menezes D, Menezes B, Dedicoat M.
+  \newblock Contact tracing strategies in household and congregate environments
+  to identify cases of tuberculosis in low- and moderate-incidence populations.
+  \newblock Cochrane Database Syst Rev. 2019;8(8):CD013077. Published 2019 Aug 28.
+  \newblock doi:10.1002/14651858.CD013077.pub2
+
+\end{thebibliography}
+
+
+\end{document}
