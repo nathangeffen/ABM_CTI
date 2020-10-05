@@ -11,24 +11,6 @@ release:
 debug:
 	g++ -g -std=c++11 -Wall -pedantic abm_spaces.cc -o $(EXE) -lpthread
 
-analyze: release
-	./$(EXE) --num_runs=100 --cores=$(CORES) >a.csv
-	./$(EXE) --num_runs=100 --tracing=1 --cores=$(CORES) > b.csv
-	./$(EXE) --num_runs=100 --tracing=1 --tat=8 --cores=$(CORES) > c.csv
-	R -f analyze.R
-
-analyze1000: release
-	./$(EXE) --num_runs=1000 --cores=$(CORES) >a.csv
-	./$(EXE) --num_runs=1000 --tracing=1 --cores=$(CORES) > b.csv
-	./$(EXE) --num_runs=1000 --tracing=1 --tat=8 --cores=$(CORES) > c.csv
-	R -f analyze.R
-
-analyze10000: release
-	./$(EXE) --num_runs=10000 --cores=$(CORES) >a.csv
-	./$(EXE) --num_runs=10000 --tracing=1 --cores=$(CORES) > b.csv
-	./$(EXE) --num_runs=10000 --tracing=1 --tat=8 --cores=$(CORES) > c.csv
-	R -f analyze.R
-
 analyze10000five: release
 	./$(EXE) --num_runs=10000 --cores=$(CORES) >a.csv
 	./$(EXE) --num_runs=10000 --tracing=1 --cores=$(CORES) > b.csv
@@ -36,19 +18,6 @@ analyze10000five: release
 	./$(EXE) --num_runs=10000 --test_contacts=0 --tracing=1 --cores=$(CORES) > d.csv
 	./$(EXE) --num_runs=10000 --test_contacts=0 --tracing=1 --tat=8 --cores=$(CORES) > e.csv
 	R -f analyze5.R
-
-analyzeTaT: release
-	./$(EXE) --num_runs=10000 --tracing=1 --tat=2 --cores=$(CORES) > t2.csv
-	./$(EXE) --num_runs=10000 --tracing=1 --tat=3 --cores=$(CORES) > t3.csv
-	./$(EXE) --num_runs=10000 --tracing=1 --tat=4 --cores=$(CORES) > t4.csv
-	./$(EXE) --num_runs=10000 --tracing=1 --tat=5 --cores=$(CORES) > t5.csv
-	./$(EXE) --num_runs=10000 --tracing=1 --tat=6 --cores=$(CORES) > t6.csv
-	./$(EXE) --num_runs=10000 --tracing=1 --tat=7 --cores=$(CORES) > t7.csv
-	./$(EXE) --num_runs=10000 --tracing=1 --tat=8 --cores=$(CORES) > c.csv
-	./$(EXE) --num_runs=10000 --tracing=1 --tat=8 --cores=$(CORES) > t8.csv
-	./$(EXE) --num_runs=10000 --tracing=1 --tat=9 --cores=$(CORES) > t9.csv
-	./$(EXE) --num_runs=10000 --tracing=1 --tat=10 --cores=$(CORES) > t10.csv
-	R -f analyzeTaT.R
 
 analyzeTaT2: release
 	./$(EXE) --num_runs=10000 --tracing=1 --tat=2 --cores=$(CORES) > t2.csv
