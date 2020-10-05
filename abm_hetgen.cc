@@ -16,25 +16,25 @@
  * You can run it without any options, in which case it's just the
  * default parameters, and it will run one simulation.
  *
- * ./hetgen
+ * ./abm_hetgen
  *
  * Here we set some parameters so that no isolation or tracing of the
  * symptomatic takes place:
  *
- * ./hetgen --trace_effective=0.0 --min_isolation=0.0 --max_isolation=0.0
+ * ./abm_hetgen --trace_effective=0.0 --min_isolation=0.0 --max_isolation=0.0
  *
  * Here we run it 100 times, and make it only report the final result for
  * each run. There are no deaths in this run because everyone recovers before
  * hospital.
  *
- * ./hetgen --trace_effective=0.0 --min_isolation=0.0 --max_isolation=0.0 --threads=1  --num_runs=100 --num_iterations=500 --report_frequency=600 --recover_before_hospital=1.0
+ * ./abm_hetgen --trace_effective=0.0 --min_isolation=0.0 --max_isolation=0.0 --threads=1  --num_runs=100 --num_iterations=500 --report_frequency=600 --recover_before_hospital=1.0
  *
  * To do sensitivity testing we have to "jiggle" our sensitive parameters.
  * An of the options that's of struct Jiggle can be jiggled. To specify that
  * a parameter musst be jiggled you separate the lower and upper bounds with a
  * colon. E.g. (note the min_test, isolation_period and exposed_risk parameters):
  *
- * ./hetgen --trace_effective=0.0 --min_isolation=0.0 --max_isolation=0.0 --threads=1  --num_jiggles=1000 --num_runs=6 --num_iterations=500 --report_frequency=600 --recover_before_hospital=1.0 --prob_test_infectious_s=0.01:0.99 --mean_test=1:8 --min_test=0:2 --isolation_period=6:14 --exposed_risk=0.1:0.9
+ * ./abm_hetgen --trace_effective=0.0 --min_isolation=0.0 --max_isolation=0.0 --threads=1  --jiggles=1000 --runs=6 --iterations=500 --report_frequency=600 --recover_before_hospital=1.0 --prob_test_infectious_s=0.01:0.99 --mean_test=1:8 --min_test=0:2 --isolation_period=6:14 --exposed_risk=0.1:0.9
  *
  * The above runs 6,000 simulations (1,000 jiggles and 6 runs per jiggle).
  *
@@ -45,14 +45,14 @@
  * Here we have two scenarios, no intervention and maximum intervention (with
  * full tracing and isolation):
  *
- * ./hetgen --trace_effective=0.0 --min_isolation=0.0 --max_isolation=0.0 --threads=1  --num_jiggles=1000 --num_runs=6 --num_iterations=500 --report_frequency=600 --recover_before_hospital=1.0 --prob_test_infectious_s=0.01:0.99 --mean_test=1:8 --min_test=0:2 --isolation_period=6:14 --exposed_risk=0.1:0.9 + --trace_effective=1.0 --min_isolation=1.0 --max_isolation=1.0
+ * ./abm_hetgen --trace_effective=0.0 --min_isolation=0.0 --max_isolation=0.0 --threads=1  --jiggles=1000 --runs=6 --iterations=500 --report_frequency=600 --recover_before_hospital=1.0 --prob_test_infectious_s=0.01:0.99 --mean_test=1:8 --min_test=0:2 --isolation_period=6:14 --exposed_risk=0.1:0.9 + --trace_effective=1.0 --min_isolation=1.0 --max_isolation=1.0
  *
  * The above runs 12,000 simulations (1,000 jiggles, 6 runs of 2 scenarios per
  * jiggle).
  *
  * Here we run 3000 jiggles of 10 runs over 4 scenarios:
  *
- * time ./hetgen --trace_effective=0.0 --min_isolation=0.0 --max_isolation=0.0 --threads=0  --num_jiggles=3000 --num_runs=10 --num_iterations=500 --report_frequency=600 --recover_before_hospital=1.0 --prob_test_infectious_s=0.01:0.99 --mean_test=1:8 --min_test=0:2 --isolation_period=6:14 --exposed_risk=0.1:0.9 --asymptomatic=0.05:0.95 --infectious_a_risk=0.1:0.9 --infectious_s_risk=0.1:0.9 --k_assort=32:44  --seed=1 + --trace_effective=1.0 --min_isolation=1.0 --max_isolation=1.0 + --trace_effective=0.3 --min_isolation=0.02 --max_isolation=1.0 + --trace_effective=0.0 --min_isolation=0.4 --max_isolation=1.0 >out.csv
+ * ./abm_hetgen --trace_effective=0.0 --min_isolation=0.0 --max_isolation=0.0 --threads=0  --jiggles=3000 --runs=10 --iterations=500 --report_frequency=600 --recover_before_hospital=1.0 --prob_test_infectious_s=0.01:0.99 --mean_test=1:8 --min_test=0:2 --isolation_period=6:14 --exposed_risk=0.1:0.9 --asymptomatic=0.05:0.95 --infectious_a_risk=0.1:0.9 --infectious_s_risk=0.1:0.9 --k_assort=32:44  --seed=1 + --trace_effective=1.0 --min_isolation=1.0 --max_isolation=1.0 + --trace_effective=0.3 --min_isolation=0.02 --max_isolation=1.0 + --trace_effective=0.0 --min_isolation=0.4 --max_isolation=1.0 >out.csv
  *
  *
  */

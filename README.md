@@ -20,10 +20,16 @@ Other useful files:
 
 - Makefile - contains various useful targets
 
-- analyze.R, analyzeTaT.R, analyze10000five.R, k_neighbours_average.R - for analysing the output of
-  abm_spaces 
-- analyze_hetgen.py - for analysing the output of abm_hetgen
+- analyze.R, analyzeTaT.R, analyze10000five.R, k_neighbours_average.R - for
+  analysing the output of abm_spaces
 
-The key analysis from the ABM-Spaces paper (link to be added when published) can be reproduced by runnning:
-	for the primary analysis: make analyze10000five (Which will render analysis in five.htm and combine all the raw data in abm_spaces_output.csv)
-	For the secondary analysis: make analyzeTaT (Which will render analysis in ten.htm)
+- analyze_hetgen.py - for running abm_hetgen or analysing its output or both
+
+- out_hetgen.csv.gz - output of abm_hetgen used in the paper doc_hetgen.tex
+
+The analysis in the ABM-Spaces paper (doc_spaces.tex) can be reproduced by running:
+
+- make analyze10000five (This is the primary analysis which will output five.htm
+  and combine all the raw data in abm_spaces_output.csv)
+
+- make analyzeTaT (This is the secondary analysis which will output ten.htm)
