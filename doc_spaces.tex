@@ -176,11 +176,11 @@ model world are as follows:
   \end{equation*}
 
   Where $r$ is the specific risk faced by a susceptible agent in a specific
-  setting on a specific timestep, $n$ is the number of positive agents in a
-  setting on a specific timestep and $ir$ is the inherent risk of the setting (a
+  setting on a specific time step, $n$ is the number of positive agents in a
+  setting on a specific time step and $ir$ is the inherent risk of the setting (a
   constant that is different for different types of setting).
 
-  For each agent in each setting, on each timestep the model draws a random
+  For each agent in each setting, on each time step the model draws a random
   number $k$ from a uniform distribution of integers $1$ to $10,000$. If $k$ is less
   than $r$ transmission takes place. One variation on this is transmission in
   taxis where transmission only takes place if $k$ is less than the square route
@@ -222,13 +222,13 @@ model world are as follows:
 \item[CTI:] The model can be run with or without CTI. In the default version of
   the model CTI involves testing 80\% of an agent’s household, school class or
   workplace contacts within two days of the agent testing positive. The test
-  results for these tests become available a default of two days later (TaT = 2)
-  whereupon the same process is repeated for all positive tests – with the
-  modification that agents tested in the last 14 days will not be tested
-  again. In CTI scenarios agents who test positive are isolated from all other
-  agents and cannot further transmit the virus. 80\% of agents who are traced,
-  but who do not test positive go into isolation, with the remaining 20\%
-  isolating at home. The model can also be run so that a positive agent’s
+  results for these tests become available a default of two days later (TaT
+  equals two) whereupon the same process is repeated for all positive tests –
+  with the modification that agents tested in the last 14 days will not be
+  tested again. In CTI scenarios agents who test positive are isolated from all
+  other agents and cannot further transmit the virus. 80\% of agents who are
+  traced, but who do not test positive go into isolation, with the remaining
+  20\% isolating at home. The model can also be run so that a positive agent’s
   contacts are isolated, but not tested.
 
   Isolation refers to the movement of people with the infection being
@@ -267,13 +267,13 @@ are available at \url{https://github.com/nathangeffen/ABM_CTI}.
 \section{Results}\label{results}
 
 CTI reduced the mean number of infections from $5,577$ to $4,157$, a relative
-reduction of 25.5\%, when TaT was held steady at 2 days. CTI with a TaT of 8
+reduction of 25.5\%, when TaT was held steady at two days. CTI with a TaT of 8
 days resulted in a mean number of $5,163 infections$, a relative reduction of 7.4\%
-compared to no CTI and a TaT of 2 days. In CTI scenarios where contacts of
+compared to no CTI and a TaT of two days. In CTI scenarios where contacts of
 positive agents were not tested the reduction in the mean number of total
-infections were more modest. CTI with a TaT of 2 days and no testing of contacts
-resulted in a mean of 4,670 infections, while the same scenario with TaT
-extended to 8 days resulted in 5,263 infections (relative reductions of 16.3\%
+infections were more modest. CTI with a TaT of two days and no testing of contacts
+resulted in a mean of $4,670$ infections, while the same scenario with TaT
+extended to 8 days resulted in $5,263$ infections (relative reductions of 16.3\%
 and 5.56\% respectively compared to no CTI).
 
 \begin{table}[ht!]
@@ -292,14 +292,15 @@ and 5.56\% respectively compared to no CTI).
 \end{table}
 
 In the secondary analysis, longer testing delays were consistently found to lead
-to increases in mean total infections over $10,000$ simulations. This relationship
-was not linear. In simulations with testing of contacts increasing TaT from 2 to
-3 days resulted in an additional 156 infections. This increased to an additional
-188 infections when increasing TaT from 4 to 5 days (the peak). From there it
-decreased to 73 additional infections when increasing TaT from 10 to 11
-days. The difference in mean total infections between simulations with and
-without testing of contacts was greatest with a TaT of 2 days and got smaller as
-TaT increased (see Figure ~\ref{fig:comparisonByTaT}).
+to increases in mean total infections over $10,000$ simulations. This
+relationship was not linear. In simulations with testing of contacts increasing
+TaT from two to three days resulted in an additional 156 infections. This
+increased to an additional $188$ infections when increasing TaT from four to
+five days (the peak). From there it decreased to 73 additional infections when
+increasing TaT from ten to 11 days. The difference in mean total infections
+between simulations with and without testing of contacts was greatest with a TaT
+of two days and got smaller as TaT increased (see Figure
+~\ref{fig:comparisonByTaT}).
 
 \begin{figure}
 \begin{center}
@@ -317,9 +318,9 @@ disease progression, the WHO-recommended strategy of CTI resulted in a
 substantial reduction in both the mean number of deaths and the mean number of
 total infections. The benefit is greater with shorter TaT times, but remained
 substantial even with TaTs of eight days. The difference in mean total
-infections between TaTs of 4 and 5 days is more than double that between 9 and
-10 days. In our model significant numbers of infections can be averted by
-testing the contacts of persons who test positive – a benefit that is greater
+infections between TaTs of four and five days is more than double that between
+nine and ten days. In our model significant numbers of infections can be averted
+by testing the contacts of persons who test positive – a benefit that is greater
 with shorter TaTs.
 
 These results suggest that CTI can play a critical role in reducing the size of
@@ -330,10 +331,10 @@ methodology.\cite{Kretzschmar2020,Hellewell2020} Apart from the difference in
 methodology, our study differs from that of Kretzschmar et al and Hellewell et
 al in that we asked whether CTI and different TaT values lead to meaningful
 reductions in total infections, while they explored what level of intervention
-was needed to reduce the effective reproductive number to below 1. It is
+was needed to reduce the effective reproductive number to below one. It is
 possible that certain levels of intervention would substantially reduce total
 infections, but not so much as to bring the effective reproduction number below
-1.
+one.
 
 Since several of our model parameters are highly uncertain, there is uncertainty
 in the model outputs in addition to the already significant stochasticity in the
