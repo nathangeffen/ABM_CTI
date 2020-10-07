@@ -13,8 +13,8 @@
 \usepackage{array}
 \usepackage{tabularx}
 
-\title{Isolating infected people and their contacts is likely to be effective
-against many epidemics}
+\title{Isolation of infected people and their contacts is likely to be effective
+  against many short-term epidemics}
 
 \author{
   Nathan Geffen \\
@@ -114,7 +114,7 @@ This raises the question: How effective is contact tracing coupled with
 isolation (CTI) at controlling outbreaks of short duration illnesses such as
 those associated with coronaviruses and influenza? And how well
 implemented must contact tracing and isolation be? After all, CTI is potentially
-a far less costly and intrusive way to controlling dangerous illnesses than
+a far less costly and intrusive way of controlling dangerous illnesses than
 lockdowns, though both together may be necessary in some situations.
 
 It's impossible to provide a precise answer to this question. Infection
@@ -137,7 +137,7 @@ model world:
 
 \begin{itemize}
 
-\item A population of $10,000$ agents is initiated with $10$ randomly infected
+\item A population of $10,000$ agents is initiated with ten randomly infected
   agents. The remaining agents are in a \emph{Susceptible} state.
 
 \item Infected agents are initially in an \emph{Exposed} state. They then
@@ -241,6 +241,14 @@ as follows:
 \begin{equation}
 min(1-a_i,1-b_i) (a_t+b_s)/2
 \end{equation}
+
+This unstructured model is designed to contrast, and complement, a highly
+structured model we have previously described that was designed to capture
+specific characteristics of Covid-19 and the effect of CTI on reducing
+SARS-CoV-2 infections in a South African township in which some agents attend
+schools, some work, some use taxis, and all live in households which are located
+in neighbourhood blocks, with each of these settings conferring different
+risks.\cite{Low2020}
 
 \subsection{Scenarios}
 
@@ -356,7 +364,7 @@ become infected.
 
 \section{Results}\label{results}
 
-We calculated the mean, median and standard deviation over the $10$ runs of each
+We calculated the mean, median and standard deviation over the ten runs of each
 of the $15,000$ sensitivity test for each of the five scenarios. Table
 ~\ref{table:results_10k} shows the results.
 
@@ -402,8 +410,8 @@ intervention scenario if two criteria were met: (1) A mean of at least 500
 agents were infected in the None scenario across the tens runs of an illness and
 (2) the better performing scenario had no more than 70\% of the infections of
 the scenario it was being compared to. Using these criteria the None scenario
-only outperformed the Isolation, Minimum, Moderate and Maximum interventions 28,
-2, 0 and 0 times respectively. It was outperformed by them $2,020$, $5,406$,
+only outperformed the Isolation, Minimum, Moderate and Maximum interventions $28$,
+$2$, $0$ and $0$ times respectively. It was outperformed by them $2,020$, $5,406$,
 $7,754$ and $11,392$ times respectively. Making the second criterion even more
 stringent, by lowering it to 40\%, resulted in the None scenario never
 outperforming any of the intervention scenarios. The intervention scenarios
@@ -579,6 +587,12 @@ epidemics.
   to identify cases of tuberculosis in low- and moderate-incidence populations.
   \newblock Cochrane Database Syst Rev. 2019;8(8):CD013077. Published 2019 Aug 28.
   \newblock doi:10.1002/14651858.CD013077.pub2
+
+\bibitem{Low2020}
+  Low M, Geffen N.
+  \newblock Contact tracing and isolation reduces Covid-19 incidence in a
+  structured agent-based model.
+  \newblock 6 October 2020. medRxiv 2020.10.06.20207761; doi: https://doi.org/10.1101/2020.10.06.20207761
 
 \end{thebibliography}
 
