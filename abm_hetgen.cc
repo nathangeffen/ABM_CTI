@@ -7,7 +7,7 @@
  *
  * To compile:
  *
- * g++ -Wall -O3  -std=c++11 hetgen.cc -o hetgen -lpthread
+ * g++ -Wall -O3  -std=c++17 hetgen.cc -o hetgen -lpthread
  *
  * All the parameters are in the options variable in the main() function.
  *
@@ -66,7 +66,7 @@
 #include <functional>
 #include <fstream>
 #include <iostream>
-#include <map>
+#include <unordered_map>
 #include <mutex>
 #include <random>
 #include <string>
@@ -213,7 +213,7 @@ struct Parameters {
     bool verbose = true;
     std::vector<double> health = {0.999, 1.0};
     double risk_infection = 0.1;
-    std::map<int, double> risk_infecting = {
+    std::unordered_map<int, double> risk_infecting = {
         std::pair<int, double>(INFECTIOUS_A, 0.05),
         std::pair<int, double>(INFECTIOUS_S, 0.1),
         std::pair<int, double>(INFECTIOUS_H, 0.1),
@@ -428,10 +428,10 @@ void process_options(int argc, char *argv[], std::vector<Option>& options,
 struct Agent {
     int id_;
     double risk_infection_;
-    std::map<int, double> risk_infecting_;
+    std::unordered_map<int, double> risk_infecting_;
     std::pair<int, int> infector_ = std::pair<int, int>(NONE, NONE);
     std::vector< std::pair<int, int> > infected_by_me_;
-    std::map< int, std::vector<int> > health_change_iters_;
+    std::unordered_map< int, std::vector<int> > health_change_iters_;
     int tested_ = 0;
     int test_result_ = NEGATIVE;
     int test_res_iter_ = NONE;
@@ -494,7 +494,7 @@ struct Simulation {
     int peak_ = 0;
     int peak_total_infections_ = 0;
     int peak_iter_ = 0;
-    std::vector< std::map<std::string, double> > results_;
+    std::vector< std::unordered_map<std::string, double> > results_;
 
     void infect(Agent *from, Agent *to) {
         int from_id = INFECTED_BEFORE;
