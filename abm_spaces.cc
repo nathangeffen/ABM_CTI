@@ -98,6 +98,15 @@ inline double rand_range(double a, double b)
     return dist(rng);
 }
 
+int age_giver() {
+    std::discrete_distribution<int> distribution  {1027, 1016, 910, 820, 869,
+        951, 926, 759, 597, 501, 420,
+        357, 288, 217, 148, 96, 98};
+    int x = distribution(rng);
+    int age = (x * 5) + rand_range_int(0, 4);
+    return age;
+}
+
 struct Agent {
     int id_;
     int gender;
@@ -140,7 +149,7 @@ struct Agent {
     void init_agent(int id, double infection_rate) {
         id_ = id;
         gender = rand_range_int(0,1);
-        age = rand_range_int(0,90);
+        age = age_giver();
         birth_week = rand_range_int(1, 52);
         if (rand_0_1() < infection_rate)
             exposed = 1;
