@@ -1,0 +1,135 @@
+---
+title: "ABM Spaces  analysis rendered using RMarkdown"
+author: "Marcus Low"
+date: "6 November 2020"
+output:
+    html_document:  
+        toc: false
+        number_sections: false
+        fig_height: 7
+        fig_width: 7
+theme: darkly
+--- 
+
+```{R load_the_basics, include=FALSE}
+t2x <- read.csv("t2x.csv")
+t3x <- read.csv("t3x.csv")
+t4x <- read.csv("t4x.csv")
+t5x <- read.csv("t5x.csv")
+t6x <- read.csv("t6x.csv")
+t7x <- read.csv("t7x.csv")
+t8x <- read.csv("t8x.csv")
+t9x <- read.csv("t9x.csv")
+t10x <- read.csv("t10x.csv")
+t11x <- read.csv("t11x.csv")
+ttx <- rbind(t2x, t3x, t4x, t5x, t6x, t7x, t8x, t9x, t10x, t11x)
+t2 <- read.csv("t2.csv")
+t3 <- read.csv("t3.csv")
+t4 <- read.csv("t4.csv")
+t5 <- read.csv("t5.csv")
+t6 <- read.csv("t6.csv")
+t7 <- read.csv("t7.csv")
+t8 <- read.csv("t8.csv")
+t9 <- read.csv("t9.csv")
+t10 <- read.csv("t10.csv")
+t11 <- read.csv("t11.csv")
+tt <- rbind(t2, t3, t4, t5, t6, t7, t8, t9, t10, t11)
+t2n <- read.csv("t2n.csv")
+t3n <- read.csv("t3n.csv")
+t4n <- read.csv("t4n.csv")
+t5n <- read.csv("t5n.csv")
+t6n <- read.csv("t6n.csv")
+t7n <- read.csv("t7n.csv")
+t8n <- read.csv("t8n.csv")
+t9n <- read.csv("t9n.csv")
+t10n <- read.csv("t10n.csv")
+t11n <- read.csv("t11n.csv")
+ttn <- rbind(t2n, t3n, t4n, t5n, t6n, t7n, t8n, t9n, t10n, t11n)
+library(dplyr)
+library(ggplot2)
+library(htmlTable)
+runs_count <- length(t2$Infections)
+```
+
+# What we found
+
+The below is based on `r runs_count` runs of each scenario.
+
+```{R numbers_table_compare, echo = FALSE}
+k <- data.frame(
+"TaT" = c(2, 3, 4, 5, 6, 7, 8, 9, 10, 11),
+"Infections_no_cti" = c(mean(t2x$Infections), mean(t3x$Infections), mean(t4x$Infections), mean(t5x$Infections), mean(t6x$Infections), mean(t7x$Infections), mean(t8x$Infections), mean(t9x$Infections), mean(t10x$Infections), mean(t11x$Infections)),
+"Infections_cti_test" = c(mean(t2$Infections), mean(t3$Infections), mean(t4$Infections), mean(t5$Infections), mean(t6$Infections), mean(t7$Infections), mean(t8$Infections), mean(t9$Infections), mean(t10$Infections), mean(t11$Infections)),
+"Infections_cti_no_test" = c(mean(t2n$Infections), mean(t3n$Infections), mean(t4n$Infections), mean(t5n$Infections), mean(t6n$Infections), mean(t7n$Infections), mean(t8n$Infections), mean(t9n$Infections), mean(t10n$Infections), mean(t11n$Infections)),
+"Dead_no_cti" = c(mean(t2x$Dead), mean(t3x$Dead), mean(t4x$Dead), mean(t5x$Dead), mean(t6x$Dead), mean(t7x$Dead), mean(t8x$Dead), mean(t9x$Dead), mean(t10x$Dead), mean(t11x$Dead)),
+"Dead_cti_test" = c(mean(t2$Dead), mean(t3$Dead), mean(t4$Dead), mean(t5$Dead), mean(t6$Dead), mean(t7$Dead), mean(t8$Dead), mean(t9$Dead), mean(t10$Dead), mean(t11$Dead)),
+"Dead_cti_no_test" = c(mean(t2n$Dead), mean(t3n$Dead), mean(t4n$Dead), mean(t5n$Dead), mean(t6n$Dead), mean(t7n$Dead), mean(t8n$Dead), mean(t9n$Dead), mean(t10n$Dead), mean(t11n$Dead)),
+"Tests_no_cti" = c(mean(t2x$Tests), mean(t3x$Tests), mean(t4x$Tests), mean(t5x$Tests), mean(t6x$Tests), mean(t7x$Tests), mean(t8x$Tests), mean(t9x$Tests), mean(t10x$Tests), mean(t11x$Tests)),
+"Tests_cti_test" = c(mean(t2$Tests), mean(t3$Tests), mean(t4$Tests), mean(t5$Tests), mean(t6$Tests), mean(t7$Tests), mean(t8$Tests), mean(t9$Tests), mean(t10$Tests), mean(t11$Tests)),
+"Tests_cti_no_test" = c(mean(t2n$Tests), mean(t3n$Tests), mean(t4n$Tests), mean(t5n$Tests), mean(t6n$Tests), mean(t7n$Tests), mean(t8n$Tests), mean(t9n$Tests), mean(t10n$Tests), mean(t11n$Tests)))
+htmlTable(k)
+write.csv2(k, file="abm_spaces_ultra_compare_output.csv")
+```
+
+# Plots
+
+Infections
+This plot shows how total infections rise with longer TaTs. The three lines are for no CTI, CTI with testing of contacts, and CTI without testing of contacts. (The code for this graph can be improved in the file ultra.rmd.) 
+```{R TaT_infections, echo = FALSE}
+p <- ggplot(data = k) +
+geom_smooth(aes(x = TaT, y = Infections_no_cti), stat="identity", color="darkblue", size=1) +
+geom_smooth(aes(x = TaT, y = Infections_cti_test), stat="identity", color="green", size=1) +
+geom_smooth(aes(x = TaT, y = Infections_cti_no_test), stat="identity", color="orange", size=1) +
+xlim(2, 11) +
+ylim(0, 7500) +
+xlab("TaT") +
+ylab("Infections") 
+show(p)
+```
+
+Deaths
+This plot shows how total mean deaths rise with longer TaTs. The three lines are for no CTI, CTI with testing of contacts, and CTI without testing of contacts. (The code for this graph can be improved in the file ultra.rmd.) 
+```{R TaT_dead, echo = FALSE}
+p <- ggplot(data = k) +
+geom_smooth(aes(x = TaT, y = Dead_no_cti), stat="identity", color="darkblue", size=1) +
+geom_smooth(aes(x = TaT, y = Dead_cti_test), stat="identity", color="green", size=1) +
+geom_smooth(aes(x = TaT, y = Dead_cti_no_test), stat="identity", color="orange", size=1) +
+xlim(2, 11) +
+ylim(0, 500) +
+xlab("TaT") +
+ylab("Deaths") 
+show(p)
+```
+
+Tests
+This plot shows how total mean tests rise with longer TaTs. The three lines are for no CTI, CTI with testing of contacts, and CTI without testing of contacts. (The code for this graph can be improved in the file ultra.rmd.) 
+```{R TaT_tests, echo = FALSE}
+p <- ggplot(data = k) +
+geom_smooth(aes(x = TaT, y = Tests_no_cti), stat="identity", color="darkblue", size=1) +
+geom_smooth(aes(x = TaT, y = Tests_cti_test), stat="identity", color="green", size=1) +
+geom_smooth(aes(x = TaT, y = Tests_cti_no_test), stat="identity", color="orange", size=1) +
+xlim(2, 11) +
+ylim(0, 15000) +
+xlab("TaT") +
+ylab("Mean total tests") 
+show(p)
+```
+
+# Differences between TaT values
+
+The below table shows the difference in mean total infections between TaT=2 and TaT =3, between TaT=3 and TaT = 4, and so on (in the two CTI scenarios).
+```{R changes_infections_by_TaT, echo = FALSE}
+with_test <- c(0, 0)
+without_test <- c(0, 0)
+m <- length(k$TaT) - 1
+for (i in 1:m) {
+with_test[i] <- round(k[i+1, 2] - k [i, 2]) 
+}
+
+for (i in 1:m) {
+without_test[i] <- round(k[i+1, 3] - k [i, 3]) 
+}
+l <- rbind(with_test, without_test)
+htmlTable(l)
+```
+
