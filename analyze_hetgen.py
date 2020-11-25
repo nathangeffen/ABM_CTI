@@ -249,6 +249,16 @@ def main():
                         type=str,
                         default="0",
                         help="Agents exposed to random infection")
+    parser.add_argument("--min_before_trace",
+                        dest="min_before_trace",
+                        type=str,
+                        default="0",
+                        help="Minimum infections before tracing is switched on")
+    parser.add_argument("--min_before_isolation",
+                        dest="min_before_isolation",
+                        type=str,
+                        default="0",
+                        help="Minimum infections before isolation is switched on")
     parser.add_argument("--filename",
                         dest="filename",
                         default="out-" + file_id + ".csv",
@@ -279,6 +289,11 @@ def main():
             f'--runs={args.runs}',
             f'--agents={args.agents}',
             f'--initial_infections={args.initial_infections}',
+            f'--min_before_trace={args.min_before_trace}',
+            f'--min_before_isolate={args.min_before_isolate}',
+            f'--k_assort={args.k_assort}',
+            f'--k_unassort={args.k_unassort}',
+
             '--iterations=500',
             '--report_frequency=600',
             '--recover_before_hospital=1.0',
@@ -292,8 +307,6 @@ def main():
             '--asymptomatic=0.05:0.95',
             '--infectious_a_risk=0.1:0.9',
             '--infectious_s_risk=0.1:0.9',
-            f'--k_assort={args.k_assort}',
-            f'--k_unassort={args.k_unassort}',
 
             # No intervention
             '--trace_effective=0.0',

@@ -67,6 +67,7 @@
 #include <fstream>
 #include <iostream>
 #include <unordered_map>
+#include <memory>
 #include <mutex>
 #include <random>
 #include <string>
@@ -92,6 +93,7 @@
 #define RECOVERED 6
 #define DEAD 7
 
+// Probabilities of test results being positive
 #define POS_SUSCEPTIBLE 0.001
 #define POS_EXPOSED 0.5
 #define POS_INFECTIOUS_A 0.9
@@ -101,6 +103,7 @@
 #define POS_RECOVERED 0.3
 #define POS_DEAD 0.99
 
+// Probabilities of agents getting tested
 #define TEST_SUSCEPTIBLE 0.0
 #define TEST_EXPOSED 0.0
 #define TEST_INFECTIOUS_A 0.0
@@ -220,7 +223,8 @@ struct Parameters {
         std::pair<int, double>(INFECTIOUS_I, 0.1)
     };
 
-    std::vector<double> risk_positive = {
+    // Probability of test result
+    std::vector<double> pos_test = {
         POS_SUSCEPTIBLE,
         POS_EXPOSED,
         POS_INFECTIOUS_A,
@@ -231,6 +235,7 @@ struct Parameters {
         POS_DEAD
     };
 
+    // Probability of getting tested
     std::vector<double> prob_test = {
         TEST_SUSCEPTIBLE,
         TEST_EXPOSED,
@@ -481,7 +486,7 @@ struct Agent {
 
 struct Simulation {
     Parameters parameters_;
-    std::vector<Agent *> agents_;
+    std::vector<Agent*> agents_;
     int iteration_;
     int num_agents_isolated_ = 0;
     int num_isolated_ = 0;
@@ -529,7 +534,7 @@ struct Simulation {
             Agent *a = new Agent(parameters_, i);
             if (a->health_ > SUSCEPTIBLE && a->health_ < DEAD)
                 infect(NULL, a);
-            agents_.push_back(a);
+             agents_.push_back(a);
         }
         if (parameters_.initial_infections) {
             std::vector<Agent *> indices = agents_;
@@ -669,7 +674,7 @@ struct Simulation {
     void event_infect_unassort() {
         int k = std::min(parameters_.k_unassort(), (int) agents_.size());
         std::vector<int> infected(agents_.size(), NONE);
-        std::vector<Agent*> agents = agents_;
+        std::vector<Agent *> agents = agents_;
         std::shuffle(agents.begin(), agents.end(), rng);
         for (size_t i = 0; i < agents.size(); i++ ) {
             auto a = agents[i];
@@ -705,7 +710,7 @@ struct Simulation {
                 int i = dist(rng);
                 a->test_res_iter_ = iteration_ +
                     std::max(i, parameters_.min_test());
-                if (rand_0_1() < parameters_.risk_positive[a->health_]) {
+                if (rand_0_1() < parameters_.pos_test[a->health_]) {
                     a->test_result_ = POSITIVE;
                     ++num_positives_;
                 } else {
@@ -925,6 +930,16 @@ void set_jiggles(Parameters &p)
     p.asymptomatic.set();
     p.infectious_a_risk.set();
     p.k_assort.set();
+
+    p.pos_test_susceptible.set();
+    p.pos_test_exposed.set();
+    p.pos_test_infectious_a.set();
+    p.pos_test_infectious_s.set();
+    p.pos_test_infectious_h.set();
+    p.pos_test_infectious_i.set();
+    p.pos_test_recovered.set();
+    p.pos_test_dead.set();
+
     p.prob_test_susceptible.set();
     p.prob_test_exposed.set();
     p.prob_test_infectious_a.set();
@@ -945,6 +960,24 @@ void get_jiggles(Parameters &from, Parameters &to)
     to.asymptomatic.get(from.asymptomatic);
     to.infectious_a_risk.get(from.infectious_a_risk);
     to.k_assort.get(from.k_assort);
+
+    to.pos_test_susceptible.get(from.pos_test_susceptible);
+    to.pos_test[SUSCEPTIBLE] = to.pos_test_susceptible();
+    to.pos_test_exposed.get(from.pos_test_exposed);
+    to.pos_test[EXPOSED] = to.pos_test_exposed();
+    to.pos_test_infectious_a.get(from.pos_test_infectious_a);
+    to.pos_test[INFECTIOUS_A] = to.pos_test_infectious_a();
+    to.pos_test_infectious_s.get(from.pos_test_infectious_s);
+    to.pos_test[INFECTIOUS_S] = to.pos_test_infectious_s();
+    to.pos_test_infectious_s.get(from.pos_test_infectious_s);
+    to.pos_test[INFECTIOUS_H] = to.pos_test_infectious_h();
+    to.pos_test_infectious_i.get(from.pos_test_infectious_i);
+    to.pos_test[INFECTIOUS_I] = to.pos_test_infectious_i();
+    to.pos_test_recovered.get(from.pos_test_recovered);
+    to.pos_test[RECOVERED] = to.pos_test_recovered();
+    to.pos_test_dead.get(from.pos_test_dead);
+    to.pos_test[DEAD] = to.pos_test_dead();
+
     to.prob_test_susceptible.get(from.prob_test_susceptible);
     to.prob_test[SUSCEPTIBLE] = to.prob_test_susceptible();
     to.prob_test_exposed.get(from.prob_test_exposed);
@@ -961,6 +994,7 @@ void get_jiggles(Parameters &from, Parameters &to)
     to.prob_test[RECOVERED] = to.prob_test_recovered();
     to.prob_test_dead.get(from.prob_test_dead);
     to.prob_test[DEAD] = to.prob_test_dead();
+
     to.mean_test.get(from.mean_test);
     to.min_test.get(from.min_test);
     to.isolation_period.get(from.isolation_period);
