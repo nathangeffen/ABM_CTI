@@ -155,3 +155,25 @@ abm_hetgen
 abm_spaces
 *.xlsx
 *.out
+Draft COVID model paper.docx
+ac19.rmd
+analyze.R
+analyzeTaT.R
+arxiv_template.tex
+barchart.png
+c19p5.cc
+c19paper.docx
+contact_tracing.ipynb
+covid_contact_tracing.Rproj
+covid_models_paper.md
+create_env.sh
+environment.yml
+k_neighbours_average.R
+nathan_notes.md
+out_4_scenarios.csv.zip
+run_hetgen.sh
+ten.rmd
+test_R0.py
+test_hetgen.py
+three.rmd
+

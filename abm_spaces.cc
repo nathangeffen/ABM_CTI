@@ -61,6 +61,7 @@ struct Parameters {
     int tat = 2;
     int output_parameters = 0;
     int sensitivity_tests =  0;
+    int uniform_age = 0;
     double asymptomatic_rate = 0.75;
     double icu_rate = 0.1;
     double icu_capacity = 0.001;
@@ -98,13 +99,17 @@ inline double rand_range(double a, double b)
     return dist(rng);
 }
 
-int age_giver() {
-    std::discrete_distribution<int> distribution  {1027, 1016, 910, 820, 869,
-        951, 926, 759, 597, 501, 420,
-        357, 288, 217, 148, 96, 98};
-    int x = distribution(rng);
-    int age = (x * 5) + rand_range_int(0, 4);
-    return age;
+int age_giver(int uniform_age) {
+    if (uniform_age) {
+        return rand_range_int(0,90);
+    } else {
+        std::discrete_distribution<int> distribution  {1027, 1016, 910, 820, 869,
+            951, 926, 759, 597, 501, 420,
+            357, 288, 217, 148, 96, 98};
+        int x = distribution(rng);
+        int age = (x * 5) + rand_range_int(0, 4);
+        return age;
+    }
 }
 
 struct Agent {
@@ -146,10 +151,10 @@ struct Agent {
     int where_infected = 0; // 1=home, 2=block, 3=class, 4=work, 5=taxi
     int birth_week;
 
-    void init_agent(int id, double infection_rate) {
+    void init_agent(int id, double infection_rate, int uniform_age) {
         id_ = id;
         gender = rand_range_int(0,1);
-        age = age_giver();
+        age = age_giver(uniform_age);
         birth_week = rand_range_int(1, 52);
         if (rand_0_1() < infection_rate)
             exposed = 1;
@@ -253,10 +258,10 @@ struct Simulation {
         return total;
     }
 
-    void make_agents(int num_agents, double infection_rate)  {
+    void make_agents(int num_agents, double infection_rate, int uniform_age)  {
         for (int i = 0; i < num_agents; i++) {
             Agent a;
-            a.init_agent(i, infection_rate);
+            a.init_agent(i, infection_rate, uniform_age);
             agents.push_back(a);
         }
         assert(count_exposures() > 0);
@@ -968,7 +973,8 @@ struct Simulation {
             (1 / (icu_rate * (1 - asymptomatic_rate)));
         death_adjust();
 
-        make_agents(parameters.num_agents, parameters.initial_infection_rate);
+        make_agents(parameters.num_agents, parameters.initial_infection_rate,
+                    parameters.uniform_age);
         make_households();
 
         make_blocks();
@@ -1274,7 +1280,7 @@ int main(int argc, char *argv[])
         {
             "icu_capacity",
             "Proportion of population that could be admitted to ICU",
-            &parameters.icu_rate,
+            &parameters.icu_capacity,
             NULL
         },
         {
@@ -1282,6 +1288,12 @@ int main(int argc, char *argv[])
             "Infection death rate",
             &parameters.death_rate,
             NULL
+        },
+        {
+            "uniform_age",
+            "Set ages using uniform random",
+            NULL,
+            &parameters.uniform_age
         },
         {
             "stay_home_rate",
