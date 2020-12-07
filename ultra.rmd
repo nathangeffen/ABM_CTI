@@ -1,7 +1,7 @@
 ---
 title: "ABM Spaces  analysis rendered using RMarkdown"
 author: "Marcus Low"
-date: "6 November 2020"
+date: "8 December 2020"
 output:
     html_document:  
         toc: false
@@ -23,6 +23,7 @@ t9x <- read.csv("t9x.csv")
 t10x <- read.csv("t10x.csv")
 t11x <- read.csv("t11x.csv")
 ttx <- rbind(t2x, t3x, t4x, t5x, t6x, t7x, t8x, t9x, t10x, t11x)
+write.csv2(ttx, file="no_tracing.csv")
 t2 <- read.csv("t2.csv")
 t3 <- read.csv("t3.csv")
 t4 <- read.csv("t4.csv")
@@ -34,6 +35,7 @@ t9 <- read.csv("t9.csv")
 t10 <- read.csv("t10.csv")
 t11 <- read.csv("t11.csv")
 tt <- rbind(t2, t3, t4, t5, t6, t7, t8, t9, t10, t11)
+write.csv2(tt, file="tracing_with_testing_contacts.csv")
 t2n <- read.csv("t2n.csv")
 t3n <- read.csv("t3n.csv")
 t4n <- read.csv("t4n.csv")
@@ -45,6 +47,7 @@ t9n <- read.csv("t9n.csv")
 t10n <- read.csv("t10n.csv")
 t11n <- read.csv("t11n.csv")
 ttn <- rbind(t2n, t3n, t4n, t5n, t6n, t7n, t8n, t9n, t10n, t11n)
+write.csv2(ttn, file="tracing_without_testing_contacts.csv")
 library(dplyr)
 library(ggplot2)
 library(htmlTable)
@@ -64,6 +67,9 @@ k <- data.frame(
 "Dead_no_cti" = c(mean(t2x$Dead), mean(t3x$Dead), mean(t4x$Dead), mean(t5x$Dead), mean(t6x$Dead), mean(t7x$Dead), mean(t8x$Dead), mean(t9x$Dead), mean(t10x$Dead), mean(t11x$Dead)),
 "Dead_cti_test" = c(mean(t2$Dead), mean(t3$Dead), mean(t4$Dead), mean(t5$Dead), mean(t6$Dead), mean(t7$Dead), mean(t8$Dead), mean(t9$Dead), mean(t10$Dead), mean(t11$Dead)),
 "Dead_cti_no_test" = c(mean(t2n$Dead), mean(t3n$Dead), mean(t4n$Dead), mean(t5n$Dead), mean(t6n$Dead), mean(t7n$Dead), mean(t8n$Dead), mean(t9n$Dead), mean(t10n$Dead), mean(t11n$Dead)),
+"R0_no_cti" = c(mean(t2x$R0), mean(t3x$R0), mean(t4x$R0), mean(t5x$R0), mean(t6x$R0), mean(t7x$R0), mean(t8x$R0), mean(t9x$R0), mean(t10x$R0), mean(t11x$R0)),
+"R0_cti_test" = c(mean(t2$R0), mean(t3$R0), mean(t4$R0), mean(t5$R0), mean(t6$R0), mean(t7$R0), mean(t8$R0), mean(t9$R0), mean(t10$R0), mean(t11$R0)),
+"R0_cti_no_test" = c(mean(t2n$R0), mean(t3n$R0), mean(t4n$R0), mean(t5n$R0), mean(t6n$R0), mean(t7n$R0), mean(t8n$R0), mean(t9n$R0), mean(t10n$R0), mean(t11n$R0)),
 "Tests_no_cti" = c(mean(t2x$Tests), mean(t3x$Tests), mean(t4x$Tests), mean(t5x$Tests), mean(t6x$Tests), mean(t7x$Tests), mean(t8x$Tests), mean(t9x$Tests), mean(t10x$Tests), mean(t11x$Tests)),
 "Tests_cti_test" = c(mean(t2$Tests), mean(t3$Tests), mean(t4$Tests), mean(t5$Tests), mean(t6$Tests), mean(t7$Tests), mean(t8$Tests), mean(t9$Tests), mean(t10$Tests), mean(t11$Tests)),
 "Tests_cti_no_test" = c(mean(t2n$Tests), mean(t3n$Tests), mean(t4n$Tests), mean(t5n$Tests), mean(t6n$Tests), mean(t7n$Tests), mean(t8n$Tests), mean(t9n$Tests), mean(t10n$Tests), mean(t11n$Tests)))
