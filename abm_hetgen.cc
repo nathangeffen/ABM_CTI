@@ -1,58 +1,122 @@
 /*
- * Highly heterogeneous simulations of infectious diseases.
+ * SIMULATING THOUSANDS OF DIFFERENT TYPES OF INFECTIOUS DISEASES
  *
- * Running from command line is quite flexible. You can specify
- * scenarios and sensitivity tests. The output is a CSV file written
- * to standard output.
+ * INTRODUCTION
  *
- * To compile:
+ * This C++ program is capable of simulating a wide range of infectious disease
+ * epidemics. It is a microsimulation with the following structure:
  *
- * g++ -Wall -O3  -std=c++17 hetgen.cc -o hetgen -lpthread
+ * Initialize a set of agents (where an agent represents a person):
+ * Repeat n times (where n is a user defined natural number):
+ *   - collect and report stats on the agents
+ *   - infect agents (a function of the number of susceptible and i
+ *   infected agents)
+ *   - test agents for the disease
+ *   - isolate and deisolate infectious agents
+ *   - trace agents to see if they are infected
+ *   - advance agents through the various stages of infection
+ *
+ * Each agent has the following characteristics
+ * - unique id
+ * - infection status
+ * - risk of infection
+ * - risk of infecting a contact if infected
+ * - number of times tested
+ * - infection stage, which can be one of SUSCEPTIBLE,
+ *   INFECTIOUS_EXPOSED, INFECTIOUS_ASYMPTOMATIC,
+ *   INFECTIOUS_SYMPTOMATIC, INFECTIOUS_HOSPITALIZED,
+ *   INFECTIOUS_ICU, RECOVERED, DEAD.
+ *
+ * Each agent has a unique id. The simulation tracks the number
+ * of times they are tested
+ *
+ * The above set of characteristics allow for highly heterogeneous populations,
+ * hence the name of the program: abm_hetgen.cc
+ *
+ * HOW TO COMPILE IT
+ *
+ * g++ -Wall -O3  -std=c++17 abm_hetgen.cc -o hetgen -lpthread
+ *
+ * The program has only been tested under GNU/Linux.
+ *
+ * HOW TO RUN IT
+ *
+ * Run the program from the command line. The program options are very flexible,
+ * allowing a great variety of simulations of very many different diseases.
+ *
+ * You can specify scenarios and sensitivity tests.
+ *
+ * The output is a CSV file written to standard output.
+ *
+ * The program is multithreaded: multiple simulations can be run at once. It's
+ * also quite fast.
  *
  * All the parameters are in the options variable in the main() function.
  *
  * Examples:
  *
- * You can run it without any options, in which case it's just the
- * default parameters, and it will run one simulation.
+ * You can run the simulation program without any options, in which case
+ * itwill run with just the default parameters, and it will run one simulation:
  *
- * ./abm_hetgen
+ *   ./abm_hetgen
  *
  * Here we set some parameters so that no isolation or tracing of the
  * symptomatic takes place:
  *
- * ./abm_hetgen --trace_effective=0.0 --min_isolation=0.0 --max_isolation=0.0
+ *   ./abm_hetgen --trace_effective=0.0 --min_isolation=0.0 --max_isolation=0.0
  *
- * Here we run it 100 times, and make it only report the final result for
- * each run. There are no deaths in this run because everyone recovers before
+ * Here we run it 100 times, and make it only report the final result for each
+ * run. There are no deaths in this run because everyone recovers before
  * hospital.
  *
- * ./abm_hetgen --trace_effective=0.0 --min_isolation=0.0 --max_isolation=0.0 --threads=1  --runs=100 --iterations=500 --report_frequency=600 --recover_before_hospital=1.0
+ *   ./abm_hetgen --trace_effective=0.0 --min_isolation=0.0 --max_isolation=0.0
+ *   --threads=1  --runs=100 --iterations=500 --report_frequency=600
+ *   --recover_before_hospital=1.0
  *
- * To do sensitivity testing we have to "jiggle" our sensitive parameters.
- * An of the options that's of struct Jiggle can be jiggled. To specify that
- * a parameter musst be jiggled you separate the lower and upper bounds with a
- * colon. E.g. (note the min_test, isolation_period and exposed_risk parameters):
+ * To do sensitivity testing we have to "jiggle" our sensitive parameters, i.e.
+ * randomly change parameters on each run within a specified range.
  *
- * ./abm_hetgen --trace_effective=0.0 --min_isolation=0.0 --max_isolation=0.0 --threads=1  --jiggles=1000 --runs=6 --iterations=500 --report_frequency=600 --recover_before_hospital=1.0 --prob_test_infectious_s=0.01:0.99 --mean_test=1:8 --min_test=0:2 --isolation_period=6:14 --exposed_risk=0.1:0.9
+ * To specify that a parameter musst be jiggled you separate the lower and
+ * upper bounds with a colon. E.g. (note the prob_test_infectious, mean_test,
+ * min_test, isolation_period and exposed_risk parameters):
+ *
+ * ./abm_hetgen --trace_effective=0.0 --min_isolation=0.0 --max_isolation=0.0
+ * --threads=1  --jiggles=1000 --runs=6 --iterations=500 --report_frequency=600
+ *  --recover_before_hospital=1.0 --prob_test_infectious_s=0.01:0.99
+ *  --mean_test=1:8 --min_test=0:2 --isolation_period=6:14
+ *  --exposed_risk=0.1:0.9
  *
  * The above runs 6,000 simulations (1,000 jiggles and 6 runs per jiggle).
  *
- * We can also specify multiple scenarios. Use the + sign at the end of a
- * set of options to specify a new scenario. The new scenario inherits all the
+ * We can also specify multiple scenarios. Use the + sign at the end of a set
+ * of options to specify a new scenario. The new scenario inherits all the
  * values of the previous one.
  *
  * Here we have two scenarios, no intervention and maximum intervention (with
  * full tracing and isolation):
  *
- * ./abm_hetgen --trace_effective=0.0 --min_isolation=0.0 --max_isolation=0.0 --threads=1  --jiggles=1000 --runs=6 --iterations=500 --report_frequency=600 --recover_before_hospital=1.0 --prob_test_infectious_s=0.01:0.99 --mean_test=1:8 --min_test=0:2 --isolation_period=6:14 --exposed_risk=0.1:0.9 + --trace_effective=1.0 --min_isolation=1.0 --max_isolation=1.0
+ * ./abm_hetgen --trace_effective=0.0 --min_isolation=0.0 --max_isolation=0.0
+ * --threads=1  --jiggles=1000 --runs=6 --iterations=500 --report_frequency=600
+ *  --recover_before_hospital=1.0 --prob_test_infectious_s=0.01:0.99
+ *  --mean_test=1:8 --min_test=0:2 --isolation_period=6:14
+ *  --exposed_risk=0.1:0.9 + --trace_effective=1.0 --min_isolation=1.0
+ *  --max_isolation=1.0
  *
- * The above runs 12,000 simulations (1,000 jiggles, 6 runs of 2 scenarios per
- * jiggle).
+* The above runs 12,000 simulations (1,000 jiggles, 6 runs of 2 scenarios per
+        * jiggle).
  *
- * Here we run 3000 jiggles of 10 runs over 4 scenarios:
+    * Here we run 3000 jiggles of 10 runs over 4 scenarios:
  *
- * ./abm_hetgen --trace_effective=0.0 --min_isolation=0.0 --max_isolation=0.0 --threads=0  --jiggles=3000 --runs=10 --iterations=500 --report_frequency=600 --recover_before_hospital=1.0 --prob_test_infectious_s=0.01:0.99 --mean_test=1:8 --min_test=0:2 --isolation_period=6:14 --exposed_risk=0.1:0.9 --asymptomatic=0.05:0.95 --infectious_a_risk=0.1:0.9 --infectious_s_risk=0.1:0.9 --k_assort=32:44  --seed=1 + --trace_effective=1.0 --min_isolation=1.0 --max_isolation=1.0 + --trace_effective=0.3 --min_isolation=0.02 --max_isolation=1.0 + --trace_effective=0.0 --min_isolation=0.4 --max_isolation=1.0 >out.csv
+    * ./abm_hetgen --trace_effective=0.0 --min_isolation=0.0
+     * --max_isolation=0.0 --threads=0  --jiggles=3000 --runs=10
+     *  --iterations=500 --report_frequency=600 --recover_before_hospital=1.0
+     *  --prob_test_infectious_s=0.01:0.99 --mean_test=1:8 --min_test=0:2
+     *  --isolation_period=6:14 --exposed_risk=0.1:0.9 --asymptomatic=0.05:0.95
+     *  --infectious_a_risk=0.1:0.9 --infectious_s_risk=0.1:0.9
+     *  --k_assort=32:44  --seed=1 + --trace_effective=1.0 --min_isolation=1.0
+     *  --max_isolation=1.0 + --trace_effective=0.3 --min_isolation=0.02
+     *  --max_isolation=1.0 + --trace_effective=0.0 --min_isolation=0.4
+     *  --max_isolation=1.0 >out.csv
  *
  *
  */
@@ -161,7 +225,7 @@ struct Jiggle {
     }
 };
 
-template<typename T>
+    template<typename T>
 std::ostream& operator<<(std::ostream& os, const Jiggle<T>& jiggle)
 {
     if (jiggle.u == NONE) {
@@ -291,7 +355,7 @@ struct Parameters {
 };
 
 void print_help(const std::vector<Option>& options, const char *prog_name,
-                const char *description)
+        const char *description)
 {
     std::cout << prog_name;
     if (description)
@@ -312,7 +376,7 @@ void print_help(const std::vector<Option>& options, const char *prog_name,
 }
 
 void process_file_options(const std::string filename,
-                          std::vector<std::string>& arguments)
+        std::vector<std::string>& arguments)
 {
     std::ifstream ifs (filename, std::ifstream::in);
 
@@ -324,11 +388,11 @@ void process_file_options(const std::string filename,
     std::string s;
     while (std::getline(ifs, s)) {
         s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
-            return !std::isspace(ch);
-        }));
+                    return !std::isspace(ch);
+                    }));
         s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
-            return !std::isspace(ch);
-        }).base(), s.end());
+                    return !std::isspace(ch);
+                    }).base(), s.end());
         if (s.size() > 0 && s[0] != '#') {
             arguments.push_back(s);
         }
@@ -337,7 +401,7 @@ void process_file_options(const std::string filename,
 }
 
 void process_command_options(int argc, char *argv[],
-                             std::vector<std::string>& arguments)
+        std::vector<std::string>& arguments)
 {
     for (int i = 1; i < argc; i++) {
         arguments.push_back(std::string(argv[i]));
@@ -345,8 +409,8 @@ void process_command_options(int argc, char *argv[],
 }
 
 void process_options(int argc, char *argv[], std::vector<Option>& options,
-                     Parameters &p, std::vector<Parameters> &parameter_set,
-                     const char *prog_desc = NULL)
+        Parameters &p, std::vector<Parameters> &parameter_set,
+        const char *prog_desc = NULL)
 {
     std::vector<std::string> arguments;
 
@@ -505,7 +569,7 @@ struct Simulation {
         int from_id = INFECTED_BEFORE;
         if (from) {
             from->infected_by_me_.push_back(std::pair<int, int>
-                                           (to->id_, iteration_));
+                    (to->id_, iteration_));
             from_id = from->id_;
         }
         to->infector_ = std::pair<int, int> (from_id, iteration_);
@@ -534,13 +598,13 @@ struct Simulation {
             Agent *a = new Agent(parameters_, i);
             if (a->health_ > SUSCEPTIBLE && a->health_ < DEAD)
                 infect(NULL, a);
-             agents_.push_back(a);
+            agents_.push_back(a);
         }
         if (parameters_.initial_infections) {
             std::vector<Agent *> indices = agents_;
             std::shuffle(indices.begin(), indices.end(), rng);
             for (auto a = indices.begin();
-                 a < indices.begin() + parameters_.initial_infections; a++) {
+                    a < indices.begin() + parameters_.initial_infections; a++) {
                 (*a)->health_ = EXPOSED;
                 infect(NULL, *a);
             }
@@ -552,7 +616,7 @@ struct Simulation {
             int infections = 0;
             for (auto & a: agents_) {
                 infections += (a->health_ > SUSCEPTIBLE &&
-                               a->health_ < RECOVERED);
+                        a->health_ < RECOVERED);
             }
             if (peak_ < infections) {
                 peak_ = infections;
@@ -572,14 +636,14 @@ struct Simulation {
             int recovered = 0, dead = 0, active = 0;
             for (auto & a: agents_) {
                 switch(a->health_) {
-                case SUSCEPTIBLE: ++susceptible; break;
-                case EXPOSED: ++exposed; break;
-                case INFECTIOUS_A: ++infectious_a; break;
-                case INFECTIOUS_S: ++infectious_s; break;
-                case INFECTIOUS_H: ++infectious_h; break;
-                case INFECTIOUS_I: ++infectious_i; break;
-                case RECOVERED: ++recovered; break;
-                case DEAD: ++dead; break;
+                    case SUSCEPTIBLE: ++susceptible; break;
+                    case EXPOSED: ++exposed; break;
+                    case INFECTIOUS_A: ++infectious_a; break;
+                    case INFECTIOUS_S: ++infectious_s; break;
+                    case INFECTIOUS_H: ++infectious_h; break;
+                    case INFECTIOUS_I: ++infectious_i; break;
+                    case RECOVERED: ++recovered; break;
+                    case DEAD: ++dead; break;
                 }
             }
             active = exposed + infectious_a + infectious_s + infectious_h +
@@ -587,40 +651,40 @@ struct Simulation {
             {
                 std::lock_guard<std::mutex> lk(io_mutex);
                 std::cout << parameters_.id << ','
-                          << parameters_.scenario << ','
-                          << parameters_.jiggle << ','
-                          << parameters_.run << ','
-                          << iteration_ << ','
-                          << susceptible << ','
-                          << exposed << ','
-                          << infectious_a << ','
-                          << infectious_s << ','
-                          << infectious_h << ','
-                          << infectious_i << ','
-                          << recovered << ','
-                          << dead << ','
-                          << active << ','
-                          << total_infected_ << ','
-                          << num_agents_isolated_ << ','
-                          << num_isolated_ << ','
-                          << num_deisolated_ << ','
-                          << num_traced_ << ','
-                          << num_agents_tested_ << ','
-                          << num_tests_ << ','
-                          << num_positives_ << ','
-                          << parameters_.k_assort() << ','
-                          << parameters_.prob_test_infectious_s() << ','
-                          << parameters_.mean_test() << ','
-                          << parameters_.min_test() << ','
-                          << parameters_.isolation_period() << ','
-                          << parameters_.exposed_risk() << ','
-                          << parameters_.asymptomatic() << ','
-                          << parameters_.infectious_a_risk() << ','
-                          << parameters_.infectious_s_risk() << ','
-                          << parameters_.min_isolation << ','
-                          << parameters_.max_isolation << ','
-                          << parameters_.trace_effective
-                          << std::endl;
+                    << parameters_.scenario << ','
+                    << parameters_.jiggle << ','
+                    << parameters_.run << ','
+                    << iteration_ << ','
+                    << susceptible << ','
+                    << exposed << ','
+                    << infectious_a << ','
+                    << infectious_s << ','
+                    << infectious_h << ','
+                    << infectious_i << ','
+                    << recovered << ','
+                    << dead << ','
+                    << active << ','
+                    << total_infected_ << ','
+                    << num_agents_isolated_ << ','
+                    << num_isolated_ << ','
+                    << num_deisolated_ << ','
+                    << num_traced_ << ','
+                    << num_agents_tested_ << ','
+                    << num_tests_ << ','
+                    << num_positives_ << ','
+                    << parameters_.k_assort() << ','
+                    << parameters_.prob_test_infectious_s() << ','
+                    << parameters_.mean_test() << ','
+                    << parameters_.min_test() << ','
+                    << parameters_.isolation_period() << ','
+                    << parameters_.exposed_risk() << ','
+                    << parameters_.asymptomatic() << ','
+                    << parameters_.infectious_a_risk() << ','
+                    << parameters_.infectious_s_risk() << ','
+                    << parameters_.min_isolation << ','
+                    << parameters_.max_isolation << ','
+                    << parameters_.trace_effective
+                    << std::endl;
             }
         }
     }
@@ -658,10 +722,10 @@ struct Simulation {
         for (int i = 0; (size_t) i < infected.size(); i++) {
             if (infected[i] > NONE) {
                 assert(agents_[infected[i]]->health_ > EXPOSED &&
-                       agents_[infected[i]]->health_ < RECOVERED);
+                        agents_[infected[i]]->health_ < RECOVERED);
                 assert(agents_[i]->health_ == SUSCEPTIBLE);
                 assert(std::abs(i - infected[i]) <=
-                       std::round((double)parameters_.k_assort() / 2));
+                        std::round((double)parameters_.k_assort() / 2));
                 agents_[i]->health_ = EXPOSED;
                 infect(agents_[infected[i]], agents_[i]);
             }
@@ -704,8 +768,8 @@ struct Simulation {
     void event_test() {
         for (auto a: agents_) {
             if (a->test_res_iter_ == NONE &&
-                a->test_result_ == NEGATIVE &&
-                rand_0_1() < parameters_.prob_test[a->health_]) {
+                    a->test_result_ == NEGATIVE &&
+                    rand_0_1() < parameters_.prob_test[a->health_]) {
                 std::poisson_distribution<int> dist(parameters_.mean_test());
                 int i = dist(rng);
                 a->test_res_iter_ = iteration_ +
@@ -735,8 +799,8 @@ struct Simulation {
 
         for (auto a: agents_) {
             if (a->test_res_iter_ == iteration_ &&
-                a->test_result_ == POSITIVE &&
-                a->isolated_ == 0.0) {
+                    a->test_result_ == POSITIVE &&
+                    a->isolated_ == 0.0) {
                 isolate(a);
             }
         }
@@ -757,14 +821,14 @@ struct Simulation {
         parameters_.min_before_trace = 0;
         for (auto a: agents_) {
             if (a->test_res_iter_ == iteration_ &&
-                a->test_result_ == POSITIVE) {
+                    a->test_result_ == POSITIVE) {
                 int neighbors = std::round((double) parameters_.k_assort() / 2.0);
                 int from = std::max(0, a->id_ - neighbors);
                 int to = std::min(a->id_ + 1 + neighbors, (int) agents_.size());
                 for (int i = from; i < to; i++) {
                     if (i != a->id_ &&
-                        agents_[i]->isolated_ == 0.0 &&
-                        agents_[i]->health_ < RECOVERED) {
+                            agents_[i]->isolated_ == 0.0 &&
+                            agents_[i]->health_ < RECOVERED) {
                         if (rand_0_1() < parameters_.trace_effective) {
                             ++num_traced_;
                             isolate(agents_[i]);
@@ -786,7 +850,7 @@ struct Simulation {
     }
 
     void advance_infection(Agent *a, int stage_from, int stage_to, double prob,
-                           bool recover) {
+            bool recover) {
         if (a->health_ == stage_from) {
             if (rand_0_1() < prob) {
                 if (recover) {
@@ -803,34 +867,34 @@ struct Simulation {
     void event_exposed() {
         for (auto a: agents_)
             advance_infection(a, EXPOSED, INFECTIOUS_A,
-                              parameters_.exposed_risk(), false);
+                    parameters_.exposed_risk(), false);
     }
 
     void event_infectious_a() {
         for (auto a: agents_)
             advance_infection(a, INFECTIOUS_A, INFECTIOUS_S,
-                              parameters_.infectious_a_risk(), a->asymptomatic_);
+                    parameters_.infectious_a_risk(), a->asymptomatic_);
     }
 
     void event_infectious_s() {
         for (auto a: agents_)
             advance_infection(a, INFECTIOUS_S, INFECTIOUS_H,
-                              parameters_.infectious_s_risk(),
-                              a->recover_before_hospital_);
+                    parameters_.infectious_s_risk(),
+                    a->recover_before_hospital_);
     }
 
     void event_infectious_h() {
         for (auto a: agents_)
             advance_infection(a, INFECTIOUS_H, INFECTIOUS_I,
-                              parameters_.infectious_h_risk,
-                              a->recover_before_icu_);
+                    parameters_.infectious_h_risk,
+                    a->recover_before_icu_);
     }
 
     void event_infectious_i() {
         for (auto a: agents_)
             advance_infection(a, INFECTIOUS_I, DEAD,
-                              parameters_.infectious_i_risk,
-                              a->recover_before_death_);
+                    parameters_.infectious_i_risk,
+                    a->recover_before_death_);
     }
 
     void iterate() {
@@ -869,13 +933,13 @@ struct Simulation {
 
 void write_csv_header() {
     std::cout << "id,scenario,jiggle,run,"
-              << "iteration,susceptible,exposed,asymptomatic,symptomatic,"
-              << "hospital,icu,recover,dead,active,total_infected,"
-              << "agents_isolated,isolated,deisolated,traced,agents_tested,tested,"
-              << "positives,k,test_infectious_s,mean_test,"
-              << "min_test,isolation_period,exposed_risk,asymp_prob,inf_a_risk,"
-              << "inf_s_risk,min_isolation,max_isolation,trace_effective"
-              << std::endl;
+        << "iteration,susceptible,exposed,asymptomatic,symptomatic,"
+        << "hospital,icu,recover,dead,active,total_infected,"
+        << "agents_isolated,isolated,deisolated,traced,agents_tested,tested,"
+        << "positives,k,test_infectious_s,mean_test,"
+        << "min_test,isolation_period,exposed_risk,asymp_prob,inf_a_risk,"
+        << "inf_s_risk,min_isolation,max_isolation,trace_effective"
+        << std::endl;
 }
 
 void run_one_sim(Simulation *s)
@@ -1024,9 +1088,9 @@ void run_simulations(std::vector<Parameters> &parms)
                 parms[k].scenario = k;
                 parms[k].id = id++;
                 boost::asio::post(pool, [p = parms[k]]() {
-                    Simulation s(p);
-                    s.simulate();
-                });
+                        Simulation s(p);
+                        s.simulate();
+                        });
             }
         }
     }
@@ -1238,7 +1302,7 @@ int main(int argc, char *argv[])
             "prob_test_dead",
             "Likelihood of dead getting tested",
             &p.prob_test_dead
-            },
+        },
         {
             "exposed_risk",
             "Probability per day of exposed changing to infectious",
@@ -1248,12 +1312,12 @@ int main(int argc, char *argv[])
             "asymptomatic",
             "Probability of asymptomatic going straight to recovered",
             &p.asymptomatic
-            },
+        },
         {
             "infectious_a_risk",
             "Probability per day of infectious_a changing health",
             &p.infectious_a_risk
-            },
+        },
         {
             "infectious_s_risk",
             "Probability per day of infectious_s changing health",
@@ -1264,7 +1328,7 @@ int main(int argc, char *argv[])
 
 
     process_options(argc, argv, options, p, parameter_set,
-                    "Simulate infectious diseases");
+            "Simulate infectious diseases");
     write_csv_header();
     run_simulations(parameter_set);
 }
